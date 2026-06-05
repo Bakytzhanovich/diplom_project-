@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: access_control_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: access_control_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/1_schema.sql
+      - ./seed.sql:/docker-entrypoint-initdb.d/2_seed.sql
+
+  redis:
+    image: redis:7
+    container_name: access_control_redis
+    ports:
+      - "6379:6379"
+
+  backend:
+    build: .
+    container_name: access_control_backend
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/access_control_db
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis

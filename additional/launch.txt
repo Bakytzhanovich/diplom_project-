@@ -1,0 +1,9 @@
+Swagger
+http://127.0.0.1:8000/docs
+
+Main app
+uvicorn backend.main:app --reload   
+
+User credentials for auth
+aiman.sholpan
+user123

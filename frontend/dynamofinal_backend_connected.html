@@ -1,0 +1,2747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dynamo — Corporate Portal</title>
+<style>
+:root{
+  --bg:#13161e;--sf:#1c202c;--sf2:#232838;--sf3:#2a3044;--sf4:#323a52;
+  --bd:rgba(255,255,255,.06);--bd2:rgba(255,255,255,.11);
+  --t1:#e6ebf8;--t2:#8b96b5;--t3:#424f6e;
+  --ac:#4f8df7;--acb:rgba(79,141,247,.12);--acB:rgba(79,141,247,.28);
+  --gn:#34d399;--gnb:rgba(52,211,153,.12);
+  --rd:#f87171;--rdb:rgba(248,113,113,.12);--rdB:rgba(248,113,113,.28);
+  --am:#fbbf24;--amb:rgba(251,191,36,.11);--amB:rgba(251,191,36,.28);
+  --or:#fb923c;--orb:rgba(249,115,22,.11);
+  --mono:ui-monospace,'Cascadia Code','JetBrains Mono',monospace;
+  --R:10px;--Rs:6px;
+}
+/* ─ ADMIN THEME OVERRIDES (applied to #admin-panel) */
+#admin-panel{
+  --bg:#06080f;--sf:#0c1019;--sf2:#111826;--sf3:#182030;
+  --bd:rgba(255,255,255,.06);--bd2:rgba(255,255,255,.12);
+  --t1:#dde3f2;--t2:#7a8aaa;--t3:#394866;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;height:100vh;overflow:hidden}
+.mono{font-family:var(--mono)}::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--sf4);border-radius:2px}
+
+/* ──── LOGIN ──────────────────────────────────────────────── */
+#login{position:fixed;inset:0;background:#0e1118;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:400;gap:20px}
+#login-mfa{position:fixed;inset:0;background:#0e1118;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:400}
+.l-brand{font-size:26px;font-weight:900;letter-spacing:-.03em;color:var(--t1)}
+.l-brand span{color:var(--ac)}
+.l-tag{font-size:11px;color:var(--t3);margin-top:-16px}
+.lcard{background:var(--sf);border:1px solid var(--bd2);border-radius:var(--R);padding:28px 32px;width:360px}
+.lcard-title{font-size:16px;font-weight:800;margin-bottom:3px}
+.lcard-sub{font-size:11px;color:var(--t2);margin-bottom:22px}
+.lf-grp{margin-bottom:14px}
+.lf-lbl{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--t3);font-weight:700;margin-bottom:5px}
+.lf-inp{width:100%;padding:9px 12px;border-radius:var(--Rs);border:1px solid var(--bd2);background:var(--sf2);color:var(--t1);font-size:13px;font-family:inherit;outline:none;transition:border .15s}
+.lf-inp:focus{border-color:var(--ac)}
+.lf-chk{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--t2);margin-bottom:20px;cursor:pointer;user-select:none}
+.lf-chk input{accent-color:var(--ac);cursor:pointer}
+.l-btn{width:100%;padding:10px;border-radius:var(--Rs);border:none;background:var(--ac);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:-.01em;transition:opacity .15s}
+.l-btn:hover{opacity:.87}
+.l-btn:disabled{opacity:.4;cursor:not-allowed}
+.l-hint{margin-top:14px;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--Rs);padding:10px 13px;font-size:11px;color:var(--t2);line-height:1.8}
+.l-hint strong{color:var(--t1)}
+.l-err{font-size:11px;color:var(--rd);text-align:center;min-height:16px;margin-top:7px}
+
+/* ──── APP SHELL ──────────────────────────────────────────── */
+#app{display:none;flex-direction:column;height:100vh}
+
+/* ──── CORP HEADER ────────────────────────────────────────── */
+#corp-hdr{height:52px;background:var(--sf);border-bottom:1px solid var(--bd2);display:flex;align-items:center;padding:0 16px;gap:14px;flex-shrink:0;z-index:10}
+.app-logo{font-size:17px;font-weight:900;letter-spacing:-.02em;white-space:nowrap}
+.app-logo span{color:var(--ac)}
+.hdr-search{flex:1;max-width:360px;position:relative;margin-left:12px}
+.hdr-search input{width:100%;padding:7px 12px 7px 32px;border-radius:20px;border:1px solid var(--bd2);background:var(--sf2);color:var(--t1);font-size:12px;font-family:inherit;outline:none}
+.hdr-search input:focus{border-color:var(--ac)}
+.hdr-search-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--t3)}
+.hdr-spacer{flex:1}
+.hdr-icon-btn{width:34px;height:34px;border-radius:50%;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--t2);transition:background .15s;position:relative}
+.hdr-icon-btn:hover{background:var(--sf2)}
+.notif-badge{position:absolute;top:4px;right:4px;width:8px;height:8px;background:var(--rd);border-radius:50%;border:1.5px solid var(--sf)}
+.hdr-av{width:32px;height:32px;border-radius:50%;background:var(--acb);border:2px solid var(--ac);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--ac);cursor:pointer}
+.hdr-admin-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;border:1px solid var(--bd2);background:transparent;color:var(--t3);font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s}
+.hdr-admin-btn:hover{border-color:var(--rdB);color:var(--rd);background:var(--rdb)}
+
+/* ──── APP BODY ───────────────────────────────────────────── */
+#app-body{display:flex;flex:1;overflow:hidden;min-height:0}
+
+/* ──── SIDEBAR ────────────────────────────────────────────── */
+#sidebar{width:220px;background:var(--sf);border-right:1px solid var(--bd2);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.sb-section{padding:16px 12px 8px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);font-weight:700}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:var(--Rs);cursor:pointer;transition:background .12s;color:var(--t2);font-size:13px;margin:1px 6px}
+.sb-item:hover{background:var(--sf2);color:var(--t1)}
+.sb-item.active{background:var(--acb);color:var(--ac)}
+.sb-item-ico{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.sb-badge{margin-left:auto;background:var(--rd);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px}
+.sb-footer{margin-top:auto;padding:12px;border-top:1px solid var(--bd)}
+.sb-user-row{display:flex;align-items:center;gap:9px;padding:8px 6px;border-radius:var(--Rs)}
+.sb-av{width:30px;height:30px;border-radius:50%;background:var(--acb);border:1.5px solid var(--ac);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--ac);flex-shrink:0}
+.sb-uname{font-size:12px;font-weight:600}
+.sb-urole{font-size:10px;color:var(--t3)}
+.sb-status{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--gn);margin-top:1px}
+.dot-gn{width:6px;height:6px;border-radius:50%;background:var(--gn)}
+.sb-logout{background:none;border:none;color:var(--t2);cursor:pointer;font-size:16px;padding:4px;display:flex;align-items:center;justify-content:center;transition:color .15s;margin-left:auto}
+.sb-logout:hover{color:var(--rd)}
+
+/* ──── WORKSPACE MAIN ─────────────────────────────────────── */
+#workspace{flex:1;overflow:hidden;display:flex;flex-direction:column;background:var(--bg)}
+.ws-page{display:none;flex:1;overflow:hidden;flex-direction:column}
+.ws-page.active{display:flex}
+.ws-topbar{height:48px;background:var(--sf);border-bottom:1px solid var(--bd2);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
+.ws-title{font-size:14px;font-weight:700}
+.ws-sub{font-size:11px;color:var(--t3)}
+
+/* ──── CHAT ───────────────────────────────────────────────── */
+#chat-page{flex-direction:row}
+#chat-channels{width:190px;background:var(--sf);border-right:1px solid var(--bd2);padding:12px 6px;overflow-y:auto;flex-shrink:0}
+.ch-section{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--t3);font-weight:700;padding:8px 8px 4px}
+.ch-item{display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:var(--Rs);cursor:pointer;color:var(--t2);font-size:12px;transition:background .1s}
+.ch-item:hover{background:var(--sf2)}
+.ch-item.active{background:var(--acb);color:var(--ac)}
+.ch-item .unread{margin-left:auto;background:var(--rd);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px}
+#chat-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#chat-msgs{flex:1;overflow-y:auto;padding:16px}
+.msg{display:flex;gap:10px;margin-bottom:14px}
+.msg-av{width:34px;height:34px;border-radius:50%;background:var(--sf3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;color:var(--ac)}
+.msg-body{flex:1}
+.msg-meta{display:flex;align-items:baseline;gap:8px;margin-bottom:3px}
+.msg-name{font-size:13px;font-weight:700}
+.msg-ts{font-size:10px;color:var(--t3)}
+.msg-text{font-size:13px;color:var(--t2);line-height:1.55}
+.msg-mine .msg-name{color:var(--ac)}
+.msg-mine .msg-text{color:var(--t1)}
+.msg-file{display:inline-flex;align-items:center;gap:7px;background:var(--sf2);border:1px solid var(--bd2);border-radius:var(--Rs);padding:6px 12px;font-size:12px;margin-top:4px;color:var(--t2)}
+#chat-input-wrap{padding:12px 16px;border-top:1px solid var(--bd2);background:var(--sf);display:flex;gap:8px;align-items:flex-end}
+#chat-input{flex:1;min-height:38px;max-height:100px;padding:9px 12px;border-radius:var(--Rs);border:1px solid var(--bd2);background:var(--sf2);color:var(--t1);font-size:13px;font-family:inherit;outline:none;resize:none}
+#chat-input:focus{border-color:var(--ac)}
+.chat-action-btn{width:36px;height:36px;border-radius:50%;border:none;background:var(--sf2);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background .15s}
+.chat-action-btn:hover{background:var(--sf3);color:var(--t1)}
+.chat-send-btn{width:36px;height:36px;border-radius:50%;border:none;background:var(--ac);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:opacity .15s}
+.chat-send-btn:hover{opacity:.85}
+
+/* ──── EMAIL ──────────────────────────────────────────────── */
+#email-page{flex-direction:row}
+#email-list{width:280px;border-right:1px solid var(--bd2);overflow-y:auto;flex-shrink:0;background:var(--sf)}
+.email-item{padding:12px 16px;border-bottom:1px solid var(--bd);cursor:pointer;transition:background .1s}
+.email-item:hover{background:var(--sf2)}
+.email-item.active{background:var(--sf2);border-left:2px solid var(--ac)}
+.email-item.unread .email-from{font-weight:700;color:var(--t1)}
+.email-from{font-size:12px;color:var(--t2);margin-bottom:3px;display:flex;justify-content:space-between}
+.email-subj{font-size:12px;font-weight:600;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.email-prev{font-size:11px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#email-detail{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#email-content{flex:1;overflow-y:auto;padding:24px}
+.email-hdr-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.email-subj-big{font-size:18px;font-weight:800;line-height:1.3}
+.email-meta-detail{font-size:11px;color:var(--t2);line-height:1.8;margin-bottom:16px}
+.email-body-text{font-size:13px;color:var(--t2);line-height:1.8;white-space:pre-wrap}
+.email-toolbar{padding:10px 16px;border-top:1px solid var(--bd2);background:var(--sf);display:flex;gap:8px}
+.email-toolbar-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--Rs);border:1px solid var(--bd2);background:transparent;color:var(--t2);font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s}
+.email-toolbar-btn:hover{background:var(--sf2);color:var(--t1)}
+#compose-modal-inner{position:fixed;bottom:0;right:0;width:480px;background:var(--sf);border:1px solid var(--bd2);border-bottom:none;border-radius:var(--R) var(--R) 0 0;z-index:20;display:none;flex-direction:column;box-shadow:0 -8px 32px rgba(0,0,0,.4)}
+.compose-hdr{padding:12px 16px;background:var(--sf2);border-radius:var(--R) var(--R) 0 0;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700}
+.compose-field{padding:8px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;font-size:12px;color:var(--t3)}
+.compose-field input{flex:1;background:transparent;border:none;color:var(--t1);font-size:12px;font-family:inherit;outline:none}
+.compose-body{padding:12px 14px}
+.compose-body textarea{width:100%;min-height:140px;background:transparent;border:none;color:var(--t1);font-size:13px;font-family:inherit;outline:none;resize:none;line-height:1.6}
+.compose-footer{padding:8px 14px;border-top:1px solid var(--bd);display:flex;gap:8px}
+
+/* ──── CALENDAR ───────────────────────────────────────────── */
+#cal-page{padding:20px;overflow-y:auto}
+.cal-grid{display:grid;grid-template-columns:1fr 280px;gap:20px}
+.cal-box{background:var(--sf);border:1px solid var(--bd2);border-radius:var(--R);padding:16px}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cal-month-title{font-size:16px;font-weight:800}
+.cal-nav-btn{width:28px;height:28px;border-radius:50%;border:1px solid var(--bd2);background:transparent;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s}
+.cal-nav-btn:hover{background:var(--sf2);color:var(--t1)}
+.cal-days-hdr{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-bottom:4px}
+.cal-dh{text-align:center;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:4px 0}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-day{min-height:50px;padding:4px;border-radius:5px;cursor:pointer;transition:background .1s;position:relative}
+.cal-day:hover{background:var(--sf2)}
+.cal-day.other-month{opacity:.3}
+.cal-day.today{background:var(--acb)}
+.cal-day.today .cal-day-num{background:var(--ac);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center}
+.cal-day-num{font-size:12px;font-weight:600;color:var(--t2);width:22px;height:22px;display:flex;align-items:center;justify-content:center}
+.cal-event-dot{width:5px;height:5px;border-radius:50%;margin:1px auto}
+.cal-events-panel{display:flex;flex-direction:column;gap:10px}
+.cal-events-title{font-size:14px;font-weight:800;margin-bottom:8px}
+.cal-event-card{background:var(--sf);border:1px solid var(--bd2);border-radius:var(--Rs);padding:10px 12px;border-left:3px solid var(--ac)}
+.cal-event-time{font-size:10px;color:var(--ac);font-weight:700;text-transform:uppercase;margin-bottom:3px}
+.cal-event-title{font-size:13px;font-weight:600}
+.cal-event-loc{font-size:11px;color:var(--t3);margin-top:2px}
+.cal-add-btn{width:100%;margin-top:10px;padding:8px;border-radius:var(--Rs);border:1px dashed var(--bd2);background:transparent;color:var(--t3);font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s}
+.cal-add-btn:hover{background:var(--sf2);color:var(--t2);border-color:var(--bd2)}
+
+/* ──── FILES ──────────────────────────────────────────────── */
+#files-page{padding:16px;overflow-y:auto;flex-direction:column;gap:12px}
+.files-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.files-path{font-size:11px;color:var(--t3);font-family:var(--mono);flex:1}
+.fi-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--Rs);border:1px solid var(--bd2);background:var(--sf);color:var(--t2);font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s}
+.fi-btn:hover{background:var(--sf2);color:var(--t1)}
+.fi-btn.pri{background:var(--ac);color:#fff;border-color:transparent}
+.fi-btn.pri:hover{opacity:.87}
+.fi-btn.dan{border-color:var(--rdB);color:var(--rd)}
+.fi-btn.dan:hover{background:var(--rdb)}
+.files-grid{display:grid;grid-template-columns:1fr;gap:2px}
+.file-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--Rs);cursor:pointer;border:1px solid transparent;transition:background .1s}
+.file-row:hover{background:var(--sf)}
+.file-row.sel{background:var(--acb);border-color:var(--acB)}
+.file-row.locked{opacity:.3;pointer-events:none}
+.frico{width:28px;height:28px;border-radius:5px;background:var(--sf2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.fr-info{flex:1;min-width:0}
+.fr-name{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fr-meta{font-size:10px;color:var(--t3);font-family:var(--mono);display:flex;gap:6px}
+.fr-badge{font-size:9px;padding:1px 5px;border-radius:3px;font-weight:700}
+
+.cls-badge{font-size:9px;padding:1px 6px;border-radius:3px;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
+.cls-public{background:rgba(96,165,250,.10);color:#60a5fa}
+.cls-internal{background:rgba(52,211,153,.10);color:#34d399}
+.cls-confidential{background:rgba(251,191,36,.11);color:#fbbf24}
+.cls-restricted{background:rgba(249,115,22,.12);color:#fb923c}
+.cls-critical{background:rgba(248,113,113,.12);color:#f87171}
+.file-open-btn{padding:4px 8px;border-radius:5px;border:1px solid var(--bd2);background:transparent;color:var(--t2);font-size:10px;cursor:pointer;font-family:inherit;transition:all .15s;flex-shrink:0}
+.file-open-btn:hover{background:var(--sf2);color:var(--t1)}
+.file-view-meta{font-size:11px;color:var(--t2);line-height:1.8;margin-bottom:10px}
+.file-view-body{background:var(--sf3);border:1px solid var(--bd2);border-radius:var(--Rs);padding:12px;font-family:var(--mono);font-size:11px;color:var(--t2);line-height:1.7;white-space:pre-wrap;max-height:260px;overflow-y:auto}
+.sel-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--sf);border-radius:var(--Rs);border:1px solid var(--bd2)}
+.sel-bar-info{font-size:11px;color:var(--t2);flex:1}
+.fcb{width:14px;height:14px;border-radius:3px;border:1px solid var(--bd2);background:transparent;cursor:pointer;appearance:none;flex-shrink:0;display:grid;place-items:center}
+.fcb:checked{background:var(--ac);border-color:var(--ac)}
+.fcb:checked::after{content:'✓';font-size:9px;color:#fff}
+
+/* ──── NOTES ──────────────────────────────────────────────── */
+#notes-page{flex-direction:row}
+#notes-list{width:200px;background:var(--sf);border-right:1px solid var(--bd2);padding:10px;overflow-y:auto;flex-shrink:0}
+.note-item{padding:10px;border-radius:var(--Rs);cursor:pointer;transition:background .1s;margin-bottom:3px}
+.note-item:hover{background:var(--sf2)}
+.note-item.active{background:var(--acb)}
+.note-item-title{font-size:12px;font-weight:700;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note-item-prev{font-size:10px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note-new-btn{width:100%;padding:7px;border-radius:var(--Rs);border:1px dashed var(--bd2);background:transparent;color:var(--t3);font-size:11px;cursor:pointer;font-family:inherit;margin-top:8px;transition:all .15s}
+.note-new-btn:hover{background:var(--sf2);color:var(--t2)}
+#notes-editor{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.note-editor-bar{padding:10px 16px;border-bottom:1px solid var(--bd2);display:flex;gap:7px;background:var(--sf)}
+.note-editor-btn{padding:5px 10px;border-radius:var(--Rs);border:1px solid var(--bd2);background:transparent;color:var(--t2);font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s}
+.note-editor-btn:hover{background:var(--sf2);color:var(--t1)}
+#note-title-inp{width:100%;padding:12px 20px 0;background:transparent;border:none;color:var(--t1);font-size:20px;font-weight:800;font-family:inherit;outline:none}
+#note-body-inp{flex:1;padding:8px 20px 20px;background:transparent;border:none;color:var(--t2);font-size:13px;font-family:inherit;outline:none;resize:none;line-height:1.8}
+.note-word-count{padding:4px 20px;font-size:10px;color:var(--t3);text-align:right;font-family:var(--mono)}
+
+
+/* ──── FILE SECURITY SCAN / QUARANTINE ───────────────────────── */
+.scan-panel{margin:8px 14px 0;background:var(--sf);border:1px solid var(--bd2);border-radius:var(--Rs);padding:10px 12px;display:flex;align-items:center;gap:10px;font-size:11px;color:var(--t2)}
+.scan-panel strong{color:var(--t1)}
+.scan-status{font-family:var(--mono);color:var(--t3);margin-left:auto}
+.quarantine-box{margin:8px 14px;background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.18);border-radius:var(--Rs);padding:10px 12px;display:none}
+.quarantine-title{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--rd);font-weight:800;margin-bottom:7px}
+.qrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid rgba(255,255,255,.05);font-size:11px}
+.qrow:first-of-type{border-top:none}
+.qname{flex:1;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qmeta{font-family:var(--mono);color:var(--rd)}
+
+/* ──── ADMIN PANEL ────────────────────────────────────────── */
+#admin-panel{display:none;flex-direction:column;height:100vh;background:var(--bg)}
+#adm-hdr{height:52px;background:var(--sf);border-bottom:1px solid var(--bd2);display:flex;align-items:center;padding:0 16px;gap:12px;flex-shrink:0}
+.adm-brand{font-size:14px;font-weight:900;letter-spacing:-.01em;display:flex;align-items:center;gap:7px}
+.adm-brand-badge{font-size:9px;padding:2px 7px;border-radius:3px;background:var(--rdB);color:var(--rd);font-weight:800;text-transform:uppercase;letter-spacing:.1em}
+.vsep{width:1px;background:var(--bd2);align-self:stretch;flex-shrink:0}
+.gwrap{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.gsvg{width:44px;height:44px}
+.gscore{font-size:17px;font-weight:900;font-family:var(--mono);line-height:1;transition:color .4s}
+.glvl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-top:2px;transition:color .4s}
+#abadge{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid;flex-shrink:0;transition:all .4s;white-space:nowrap}
+.adot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.hstat{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0}
+.hstat .v{font-size:11px;font-family:var(--mono);white-space:nowrap}
+.hstat .k{font-size:9px;color:var(--t3)}
+.adm-back-btn{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;border:1px solid var(--bd2);background:transparent;color:var(--t2);font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s;margin-left:auto}
+.adm-back-btn:hover{color:var(--t1);border-color:var(--bd2);background:var(--sf2)}
+#adm-body{display:grid;grid-template-columns:1fr 330px;flex:1;overflow:hidden;min-height:0}
+#adm-left{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--bd)}
+#adm-right{display:flex;flex-direction:column;overflow:hidden;background:var(--sf)}
+.ssec{border-bottom:1px solid var(--bd);padding:9px 12px;flex-shrink:0}
+.sttl{font-size:9px;text-transform:uppercase;letter-spacing:.11em;color:var(--t3);font-weight:700;margin-bottom:6px}
+#cv-wrap{padding:0 12px 8px;border-bottom:1px solid var(--bd);flex-shrink:0}
+#cvcanvas{display:block;border-radius:5px}
+.frow{display:flex;align-items:center;gap:5px;padding:2.5px 0}
+.fname{width:138px;font-size:10px;color:var(--t2);flex-shrink:0;line-height:1.3}
+.fbarw{flex:1;height:3px;background:var(--sf3);border-radius:2px;overflow:hidden}
+.fbar{height:100%;border-radius:2px;transition:width .5s}
+.fval{width:22px;text-align:right;font-size:10px;font-family:var(--mono)}
+.crow{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid var(--bd)}
+.crow:last-child{border-bottom:none}
+.ck{font-size:10px;color:var(--t2)}
+.cv2{font-size:10px;font-family:var(--mono);text-align:right}
+.brow{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid var(--bd)}
+.brow:last-child{border-bottom:none}
+#adm-alerts{flex:1;overflow-y:auto;padding:5px;min-height:0}
+.alrt{display:flex;gap:6px;padding:6px 8px;border-radius:5px;margin-bottom:3px;border-left:2px solid;font-size:11px;background:var(--sf2);animation:sIn .2s ease}
+@keyframes sIn{from{opacity:0;transform:translateX(5px)}to{opacity:1;transform:none}}
+.alrt.critical{border-color:#f87171}.alrt.high{border-color:#fb923c}
+.alrt.medium{border-color:#fbbf24}.alrt.low{border-color:#60a5fa}.alrt.info{border-color:#394866}
+.amsg{flex:1;line-height:1.4}
+.ats{font-size:9px;color:var(--t3);font-family:var(--mono);margin-top:2px}
+#adm-log{height:130px;border-top:1px solid var(--bd2);display:flex;flex-direction:column;flex-shrink:0;background:var(--bg)}
+#adm-loghdr{padding:4px 13px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:7px}
+#adm-logbody{flex:1;overflow-y:auto;padding:2px 5px;font-family:var(--mono);font-size:10px}
+.lrow{display:grid;grid-template-columns:56px 80px 120px 1fr 46px;gap:6px;padding:2px 7px;border-radius:3px;line-height:1.8}
+.lrow:hover{background:var(--sf2)}
+.lts{color:var(--t3)}.luser{color:#60a5fa}.lac{color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ldet{color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lres{text-align:right;font-weight:700}
+.ra{color:#34d399}.rd{color:#f87171}.rw{color:#fbbf24}
+
+/* ──── MODALS ─────────────────────────────────────────────── */
+.moverlay{position:fixed;inset:0;background:rgba(8,10,18,.85);display:flex;align-items:center;justify-content:center;z-index:300}
+.mbox{background:var(--sf2);border:1px solid var(--bd2);border-radius:var(--R);padding:26px;width:380px}
+.mbox.danger{border-color:rgba(248,113,113,.3)}
+.mico{font-size:26px;margin-bottom:9px}
+.mtitle{font-size:16px;font-weight:800;margin-bottom:5px}
+.mdesc{font-size:12px;color:var(--t2);line-height:1.65;margin-bottom:16px}
+.mbtn{width:100%;padding:10px;border-radius:var(--Rs);border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity .15s}
+.mbtn:hover{opacity:.86}
+.mbtn.pri{background:var(--ac);color:#fff}
+.mbtn.dan{background:var(--rd);color:#fff;margin-top:7px}
+.mbtn.ghost{background:transparent;color:var(--t2);border:1px solid var(--bd2);margin-top:7px}
+.otp-wrap{display:flex;gap:7px;justify-content:center;margin:10px 0}
+.otpd{width:42px;height:50px;border-radius:var(--Rs);border:1px solid var(--bd2);background:var(--sf3);color:var(--t1);font-size:20px;font-family:var(--mono);text-align:center;font-weight:700;outline:none}
+.otpd:focus{border-color:var(--ac)}
+.phone{background:#080810;border-radius:18px;padding:12px 10px;margin:10px auto;width:185px;border:2px solid #181828}
+.phnotch{width:50px;height:13px;background:#080810;border-radius:7px;margin:0 auto 7px;border:2px solid #181828}
+.phscreen{background:#0e0e1e;border-radius:9px;padding:9px}
+.phhdr{font-size:9px;color:#555;margin-bottom:3px}
+.phbody{font-size:10px;color:#777;line-height:1.4}
+.phcode{font-size:20px;font-weight:800;font-family:var(--mono);color:#60a5fa;letter-spacing:4px;text-align:center;margin-top:5px}
+.cdwrap{display:flex;align-items:center;justify-content:center;gap:6px;margin:5px 0 10px}
+.pwin{width:100%;padding:9px 12px;border-radius:var(--Rs);border:1px solid var(--bd2);background:var(--sf3);color:var(--t1);font-size:12px;font-family:inherit;outline:none;margin-bottom:7px}
+.pwin:focus{border-color:var(--ac)}
+.riskbox{background:var(--sf3);border-radius:var(--Rs);padding:10px;margin-bottom:14px;font-size:10px;font-family:var(--mono);color:var(--t2);line-height:1.9;white-space:pre}
+.incbox{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.25);border-radius:var(--Rs);padding:10px;margin-bottom:14px;font-size:10px;font-family:var(--mono);color:var(--t2);line-height:1.9;text-align:left}
+
+/* Admin login modal */
+#admin-login-modal{position:fixed;inset:0;background:rgba(8,10,18,.9);display:none;align-items:center;justify-content:center;z-index:350}
+
+/* ──── UTILS ──────────────────────────────────────────────── */
+.dp{animation:dp 1.4s ease infinite}
+@keyframes dp{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes ipfx{0%,100%{color:var(--t1)}50%{color:#f87171}}
+.ipfx{animation:ipfx .45s ease 3}
+/* subtle pulsing risk indicator for user (top right of corp header) */
+#user-risk-indicator{width:8px;height:8px;border-radius:50%;background:var(--gn);transition:background .5s;cursor:default}
+#user-risk-indicator.warn{animation:rp 1.5s ease infinite}
+@keyframes rp{0%,100%{opacity:1}50%{opacity:.3}}
+#readonly-banner{display:none;background:rgba(249,115,22,.12);border-bottom:1px solid rgba(249,115,22,.28);color:#fbbf24;padding:8px 16px;font-size:12px;align-items:center;gap:8px;flex-shrink:0}
+#readonly-banner strong{color:#fff}
+body.readonly-mode #readonly-banner{display:flex}
+body.readonly-mode button.ro-write, body.readonly-mode textarea.ro-write, body.readonly-mode input.ro-write{opacity:.45;cursor:not-allowed}
+body.readonly-mode #chat-input, body.readonly-mode #note-title-inp, body.readonly-mode #note-body-inp{background:rgba(251,191,36,.04)}
+
+.toast{position:fixed;right:18px;bottom:18px;background:var(--sf2);border:1px solid var(--bd2);border-radius:var(--R);padding:10px 13px;color:var(--t1);font-size:12px;z-index:500;box-shadow:0 8px 26px rgba(0,0,0,.35);max-width:360px}
+.search-pop{position:fixed;top:56px;left:290px;width:430px;max-height:430px;overflow:auto;background:var(--sf);border:1px solid var(--bd2);border-radius:var(--R);z-index:250;box-shadow:0 12px 40px rgba(0,0,0,.42);padding:8px;display:none}
+.search-row{padding:9px 10px;border-radius:var(--Rs);cursor:pointer;border-bottom:1px solid var(--bd);font-size:12px;color:var(--t2)}
+.search-row:hover{background:var(--sf2);color:var(--t1)}
+.search-type{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--ac);font-weight:800;margin-bottom:3px}
+
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ═══════════════════════════════════════════════════════ -->
+<div id="login">
+  <div style="text-align:center">
+    <div class="l-brand">Dynamo<span>Access</span></div>
+    <div class="l-tag" style="font-size:11px;color:var(--t3);margin-top:4px">Enterprise Collaboration Platform</div>
+  </div>
+  <div class="lcard">
+    <div class="lcard-title">Sign in</div>
+    <div class="lcard-sub">Use your organization credentials</div>
+    <div class="lf-grp">
+      <label class="lf-lbl">Username or email</label>
+      <input class="lf-inp" id="l-user" value="aiman.sholpan" autocomplete="off">
+    </div>
+    <div class="lf-grp">
+      <label class="lf-lbl">Password</label>
+      <input class="lf-inp" id="l-pass" type="password" value="user123">
+    </div>
+    <label class="lf-chk">
+      <input type="checkbox" id="l-trust" checked>
+      Remember this device (skip 2FA)
+    </label>
+    <button class="l-btn" id="l-btn">Sign in →</button>
+    <div class="l-err" id="l-err"></div>
+    <div class="l-hint">
+      <strong>aiman.sholpan</strong> / <strong>user123</strong> — Employee account<br>
+      Uncheck "remember device" to trigger 2FA at login<br>
+      Backend users: <strong>admin/admin123</strong>, <strong>manager/manager123</strong>, <strong>nurs/nurs2004</strong><br>Admin panel: header shield icon → password <strong>admin</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LOGIN 2FA ════════════════════════════════════════════════════ -->
+<div id="login-mfa">
+  <div class="lcard" style="margin-top:0">
+    <div class="mico">📱</div>
+    <div class="lcard-title">Two-factor authentication</div>
+    <div class="lcard-sub">New device detected. Enter the code sent to your phone.</div>
+    <div class="phone">
+      <div class="phnotch"></div>
+      <div class="phscreen">
+        <div class="phhdr">Dynamo Security · Just now</div>
+        <div class="phbody">Your sign-in code:</div>
+        <div class="phcode" id="lmfa-code">------</div>
+      </div>
+    </div>
+    <div class="otp-wrap" id="lmfa-inputs"></div>
+    <div class="l-err" id="lmfa-err"></div>
+    <button class="l-btn" onclick="verifyLoginMFA()">Verify →</button>
+    <button class="mbtn ghost" style="margin-top:8px" onclick="backToLogin()">← Back</button>
+  </div>
+</div>
+
+<!-- ══ APP ══════════════════════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- HEADER -->
+  <header id="corp-hdr">
+    <div class="app-logo">Dynamo<span>Access</span></div>
+    <div class="hdr-search">
+      <span class="hdr-search-ico">🔍</span>
+      <input id="global-search" placeholder="Search messages, files, people…" onfocus="act('search')" oninput="globalSearch(this.value)">
+    </div>
+    <div class="hdr-spacer"></div>
+    <!-- Subtle session health indicator (no score shown to user) -->
+    <div id="user-risk-indicator" title="Session status"></div>
+    <button class="hdr-icon-btn" onclick="act('notifications')" title="Notifications">
+      🔔<span class="notif-badge" id="notif-badge" style="display:none"></span>
+    </button>
+    <button class="hdr-icon-btn" onclick="showAppsMenu()" title="Apps">⊞</button>
+    <button class="hdr-icon-btn" onclick="showHelpPanel()" title="Help">❓</button>
+    <div class="hdr-admin-btn" onclick="showAdminLogin()" title="Security Admin">
+      🛡 Admin
+    </div>
+    <div class="hdr-av" onclick="showProfileCard()" title="Aiman Sholpan">DA</div>
+  </header>
+
+  <div id="readonly-banner">
+    🔎 <strong>Read-only restricted mode</strong> Elevated session risk detected. Viewing is allowed, but sending, editing, uploading and downloading are paused until step-up MFA is passed.
+  </div>
+
+  <!-- BODY -->
+  <div id="app-body">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+      <div class="sb-section">Main</div>
+      <div class="sb-item active" id="nav-chat" onclick="navTo('chat')">
+        <span class="sb-item-ico">💬</span> Chat
+        <span class="sb-badge" id="chat-badge">3</span>
+      </div>
+      <div class="sb-item" id="nav-email" onclick="navTo('email')">
+        <span class="sb-item-ico">✉️</span> Email
+        <span class="sb-badge" id="email-badge">5</span>
+      </div>
+      <div class="sb-item" id="nav-calendar" onclick="navTo('calendar')">
+        <span class="sb-item-ico">📅</span> Calendar
+      </div>
+      <div class="sb-item" id="nav-files" onclick="navTo('files')">
+        <span class="sb-item-ico">📁</span> Files
+      </div>
+      <div class="sb-item" id="nav-notes" onclick="navTo('notes')">
+        <span class="sb-item-ico">📝</span> Notes
+      </div>
+      <div class="sb-section" style="margin-top:8px">Workspace</div>
+      <div class="sb-item" onclick="showDepartmentAccess('HR')">
+        <span class="sb-item-ico">👥</span> HR Portal
+      </div>
+      <div class="sb-item" onclick="showDepartmentAccess('Finance')">
+        <span class="sb-item-ico">💰</span> Finance
+      </div>
+      <div class="sb-item" onclick="showDepartmentAccess('IT')">
+        <span class="sb-item-ico">🖥</span> IT Systems
+      </div>
+      <div class="sb-footer">
+        <div class="sb-user-row" style="position: relative; width: 100%;">
+          <div class="sb-av">AS</div>
+          <div style="flex: 1; min-width: 0;">
+            <div class="sb-uname" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Aiman Sholpan</div>
+            <div class="sb-status"><div class="dot-gn"></div> Online</div>
+          </div>
+          <button class="sb-logout" onclick="logout()" title="Log out">
+            🚪
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- WORKSPACE -->
+    <div id="workspace">
+
+      <!-- CHAT -->
+      <div class="ws-page active" id="chat-page">
+        <div id="chat-channels">
+          <div class="ch-section">Channels</div>
+          <div class="ch-item active" onclick="switchChannel('general')"># general <span class="unread">3</span></div>
+          <div class="ch-item" onclick="switchChannel('hr-team')"># hr-team</div>
+          <div class="ch-item" onclick="switchChannel('projects')"># projects</div>
+          <div class="ch-item" onclick="switchChannel('it-help')"># it-help</div>
+          <div class="ch-section">Direct</div>
+          <div class="ch-item" onclick="switchChannel('alice')">👤 Alice Wang</div>
+          <div class="ch-item" onclick="switchChannel('bob')">👤 Bob Karim</div>
+          <div class="ch-item" onclick="switchChannel('manager')">👤 Manager (Dave)</div>
+        </div>
+        <div id="chat-main">
+          <div class="ws-topbar">
+            <div style="font-size:14px;font-weight:700" id="chat-channel-title"># general</div>
+            <div style="font-size:11px;color:var(--t3)">12 members · Corporate announcements</div>
+          </div>
+          <div id="chat-msgs"></div>
+          <div id="chat-input-wrap">
+            <button class="chat-action-btn" onclick="openVirusTotalCheck('chat')" title="Attach file">📎</button>
+            <textarea id="chat-input" placeholder="Message #general…" rows="1"
+              onkeydown="chatKeydown(event)" oninput="chatTyping()"></textarea>
+            <button class="chat-action-btn" onclick="act('chatEmoji')" title="Emoji">😊</button>
+            <button class="chat-send-btn" onclick="sendChat()" title="Send">➤</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- EMAIL -->
+      <div class="ws-page" id="email-page">
+        <div id="email-list">
+          <div style="padding:10px 14px;border-bottom:1px solid var(--bd2);display:flex;gap:8px">
+            <button class="fi-btn pri" style="flex:1;justify-content:center" onclick="openCompose()">✏ Compose</button>
+          </div>
+          <div id="email-items"></div>
+        </div>
+        <div id="email-detail">
+          <div id="email-content"><div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--t3)">Select an email to read</div></div>
+          <div class="email-toolbar">
+            <button class="email-toolbar-btn" id="email-reply-btn" style="display:none" onclick="act('emailReply')">↩ Reply</button>
+            <button class="email-toolbar-btn" id="email-fwd-btn" style="display:none" onclick="act('emailForwardExternal')">→ Forward</button>
+            <button class="email-toolbar-btn" id="email-del-btn" style="display:none" onclick="act('emailDelete')" style="color:var(--rd)">🗑 Delete</button>
+          </div>
+        </div>
+      </div>
+      <div id="compose-modal-inner">
+        <div class="compose-hdr">
+          <span>New Message</span>
+          <button onclick="closeCompose()" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:18px">×</button>
+        </div>
+        <div class="compose-field"><span>To:</span><input id="compose-to" placeholder="recipient@company.com"></div>
+        <div class="compose-field"><span>Cc:</span><input id="compose-cc" placeholder="optional"></div>
+        <div class="compose-field"><span>Subject:</span><input id="compose-subj" placeholder="Subject"></div>
+        <div class="compose-body"><textarea id="compose-body" placeholder="Write your message…"></textarea></div>
+        <div class="compose-footer">
+          <button class="fi-btn pri" onclick="sendEmail()">Send ➤</button>
+          <button class="fi-btn" onclick="openVirusTotalCheck('email')">📎 Attach</button>
+          <button class="fi-btn" style="margin-left:auto;color:var(--rd)" onclick="closeCompose()">Discard</button>
+        </div>
+      </div>
+
+      <!-- CALENDAR -->
+      <div class="ws-page" id="calendar-page" style="overflow-y:auto">
+        <div class="ws-topbar">
+          <div class="ws-title">📅 Calendar</div>
+          <div class="ws-sub" id="cal-month-label">November 2024</div>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button class="fi-btn" onclick="addEvent()">+ New event</button>
+          </div>
+        </div>
+        <div class="cal-grid" style="padding:16px;flex:1;overflow-y:auto">
+          <div class="cal-box">
+            <div class="cal-nav">
+              <button class="cal-nav-btn" onclick="calNav(-1)">‹</button>
+              <div class="cal-month-title" id="cal-title">November 2024</div>
+              <button class="cal-nav-btn" onclick="calNav(1)">›</button>
+            </div>
+            <div class="cal-days-hdr">
+              <div class="cal-dh">Mo</div><div class="cal-dh">Tu</div><div class="cal-dh">We</div>
+              <div class="cal-dh">Th</div><div class="cal-dh">Fr</div><div class="cal-dh">Sa</div><div class="cal-dh">Su</div>
+            </div>
+            <div class="cal-days" id="cal-days"></div>
+          </div>
+          <div class="cal-events-panel">
+            <div class="cal-events-title">Upcoming events</div>
+            <div id="cal-events-list"></div>
+            <button class="cal-add-btn" onclick="addEvent()">+ Add event</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILES -->
+      <div class="ws-page" id="files-page">
+        <div class="ws-topbar">
+          <div class="ws-title">📁 Files</div>
+          <span class="files-path">/shares/HR/Documents/</span>
+          <input type="file" id="secure-file-input" style="display:none" onchange="secureUploadFromInput(event)">
+          <button class="fi-btn" onclick="openVirusTotalCheck('files')">⬆ Upload</button>
+          <button class="fi-btn dan" onclick="openVirusTotalCheck('files')">Upload without scan</button>
+          <button class="fi-btn" onclick="downloadSel()">⬇ Download</button>
+          <button class="fi-btn dan" onclick="act('massDownloadAll')">Download all</button>
+        </div>
+        <div style="padding:10px 14px;border-bottom:1px solid var(--bd2);background:var(--sf)" id="file-sel-bar">
+          <span class="sel-bar-info" id="file-sel-info">No files selected</span>
+        </div>
+        <div class="scan-panel" id="scan-panel">
+          <span>🛡 File security verification</span>
+          <span>Provider: <strong>VirusTotal service</strong></span>
+          <span class="scan-status" id="scan-status">ready</span>
+        </div>
+        <div class="quarantine-box" id="quarantine-box">
+          <div class="quarantine-title">Quarantined files</div>
+          <div id="quarantine-list"></div>
+        </div>
+        <div class="files-grid" id="fmgr" style="padding:8px;overflow-y:auto;flex:1"></div>
+      </div>
+
+      <!-- NOTES -->
+      <div class="ws-page" id="notes-page">
+        <div id="notes-list">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--t3);font-weight:700;padding:8px 6px 4px">My Notes</div>
+          <div id="notes-items"></div>
+          <button class="note-new-btn" onclick="newNote()">+ New note</button>
+        </div>
+        <div id="notes-editor">
+          <div class="ws-topbar">
+            <div class="ws-title">Notes</div>
+            <div style="margin-left:auto;display:flex;gap:7px">
+              <button class="note-editor-btn" onclick="saveNote()">💾 Save</button>
+              <button class="note-editor-btn" onclick="act('noteExport')">📤 Export</button>
+              <button class="note-editor-btn" onclick="act('notePasteAll')">📋 Paste large content</button>
+            </div>
+          </div>
+          <input id="note-title-inp" placeholder="Note title…" oninput="noteChange()">
+          <div class="note-word-count" id="note-wc">0 words</div>
+          <textarea id="note-body-inp" placeholder="Start writing…" oninput="noteChange()"></textarea>
+        </div>
+      </div>
+
+    </div><!-- #workspace -->
+  </div><!-- #app-body -->
+</div><!-- #app -->
+
+<!-- ══ ADMIN PANEL ════════════════════════════════════════════════ -->
+<div id="admin-panel">
+  <div id="adm-hdr">
+    <div class="adm-brand">🛡 Security Operations Center <span class="adm-brand-badge">Admin</span></div>
+    <div class="vsep"></div>
+    <div class="gwrap">
+      <svg class="gsvg" viewBox="0 0 44 44">
+        <circle cx="22" cy="22" r="17" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="4"/>
+        <circle id="g-ring" cx="22" cy="22" r="17" fill="none" stroke-width="4" stroke-linecap="round"
+          stroke-dasharray="106.8" stroke-dashoffset="106.8" transform="rotate(-90 22 22)"
+          style="transition:stroke-dashoffset .6s ease,stroke .4s"/>
+      </svg>
+      <div><div class="gscore" id="g-score">0</div><div class="glvl" id="g-lvl">Safe</div></div>
+    </div>
+    <div id="abadge"><div class="adot" id="a-dot"></div><span id="a-txt">Full Access</span></div>
+    <div class="vsep"></div>
+    <div class="hstat"><div class="v" id="h-ip">192.168.1.45</div><div class="k">IP / Location</div></div>
+    <div class="vsep"></div>
+    <div class="hstat"><div class="v" id="h-time">00:00</div><div class="k">Session</div></div>
+    <div class="vsep"></div>
+    <div class="hstat"><div class="v" id="h-acts">0</div><div class="k">Actions</div></div>
+    <div class="vsep"></div>
+    <div class="hstat"><div class="v" id="h-threat" style="color:#2dd67b">Safe</div><div class="k">Threat</div></div>
+    <button class="adm-back-btn" onclick="closeAdmin()">← Back to workspace</button>
+    <button class="hbtn" style="margin-left:8px;padding:5px 11px;border-radius:5px;border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--t2);font-size:11px;cursor:pointer;font-family:inherit" onclick="resetSession()">↺ Reset</button>
+  </div>
+  <div id="adm-body">
+    <div id="adm-left">
+      <div class="ssec">
+        <div class="sttl">Risk score — 90-second history</div>
+        <div id="cv-wrap"><canvas id="cvcanvas" width="100%" height="60"></canvas></div>
+      </div>
+      <div class="ssec" style="flex:1;overflow-y:auto">
+        <div class="sttl">Risk factor breakdown (15 signals)</div>
+        <div id="factor-list"></div>
+      </div>
+      <div id="adm-log">
+        <div id="adm-loghdr">
+          <div class="adot dp" id="ldot" style="background:#34d399;width:7px;height:7px"></div>
+          <span style="font-size:9px;text-transform:uppercase;letter-spacing:.09em;color:var(--t3);font-weight:700">Audit log — live</span>
+          <span style="margin-left:auto;font-size:10px;color:var(--t3)" id="lcnt">0 events</span>
+        </div>
+        <div id="adm-logbody"></div>
+      </div>
+    </div>
+    <div id="adm-right">
+      <div class="ssec">
+        <div class="sttl">Session context</div>
+        <div id="ctx-list"></div>
+      </div>
+      <div class="ssec">
+        <div class="sttl">Behavioral baseline deviation</div>
+        <div id="baseline-list"></div>
+      </div>
+      <div style="padding:8px 12px 4px;border-bottom:1px solid var(--bd);flex-shrink:0">
+        <div class="sttl">Security alerts</div>
+      </div>
+      <div id="adm-alerts"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADMIN LOGIN MODAL ══════════════════════════════════════════ -->
+<div id="admin-login-modal">
+  <div class="mbox" style="width:340px">
+    <div class="mico">🛡</div>
+    <div class="mtitle">Admin access</div>
+    <div class="mdesc">Enter administrator credentials to access the security monitoring panel.</div>
+    <div class="lf-grp">
+      <label class="lf-lbl">Admin password</label>
+      <input class="pwin" type="password" id="admin-pw" placeholder="Password (demo: admin)" onkeydown="if(event.key==='Enter')verifyAdmin()">
+    </div>
+    <div class="l-err" id="admin-err"></div>
+    <button class="mbtn pri" onclick="verifyAdmin()">🛡 Access Security Panel</button>
+    <button class="mbtn ghost" onclick="closeAdminLogin()">Cancel</button>
+  </div>
+</div>
+
+
+
+<!-- ══ MODAL: CLASSIFICATION-AWARE FILE VIEWER ═════════════════════ -->
+<div class="moverlay" id="file-view-modal" style="display:none">
+  <div class="mbox" style="width:520px">
+    <div class="mico" id="file-view-icon">📄</div>
+    <div class="mtitle" id="file-view-title">File preview</div>
+    <div class="mdesc" id="file-view-desc">Classification-aware access decision.</div>
+    <div class="riskbox" id="file-view-policy" style="white-space:normal;line-height:1.6"></div>
+    <div class="file-view-body" id="file-view-body"></div>
+    <button class="mbtn ghost" onclick="closeFileViewer()">Close</button>
+  </div>
+</div>
+
+<!-- ══ MODAL: VIRUSTOTAL FILE CHECK ════════════════════════════════ -->
+<div class="moverlay" id="vt-modal" style="display:none">
+  <div class="vt-box">
+    <div class="vt-head">
+      <div class="vt-ico">🛡</div>
+      <div>
+        <div class="vt-title">VirusTotal file check</div>
+        <div class="vt-sub" id="vt-context">File transfer must pass security verification before it is allowed.</div>
+      </div>
+    </div>
+    <div class="vt-flow">
+      1. Select a file from the file manager.<br>
+      2. The system calculates a file reputation verdict.<br>
+      3. Clean files are allowed; suspicious files are quarantined and increase session risk.
+    </div>
+    <div class="vt-status" id="vt-status">Waiting for file selection.</div>
+    <div class="vt-actions">
+      <button class="vt-btn pri" onclick="vtSelectFile(false)">Select file and scan</button>
+      <button class="vt-btn dan" onclick="vtSelectFile(true)">Bypass scan</button>
+      <button class="vt-btn ghost" onclick="closeVTModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DEPARTMENT ACCESS MODAL ════════════════════════════════════ -->
+<div id="dept-access-modal" class="moverlay" style="display:none">
+  <div class="mbox" style="width:390px">
+    <div class="mico">🔐</div>
+    <div class="mtitle" id="dept-access-title">Department access required</div>
+    <div class="mdesc" id="dept-access-desc">This workspace requires additional department-level authorization.</div>
+    <div class="riskbox" id="dept-access-info" style="white-space:normal;line-height:1.55"></div>
+    <div class="lf-grp">
+      <label class="lf-lbl">Username or email</label>
+      <input class="pwin" id="dept-user" value="aiman.sholpan" autocomplete="off">
+    </div>
+    <div class="lf-grp">
+      <label class="lf-lbl">Department password</label>
+      <input class="pwin" type="password" id="dept-pass" placeholder="Use your account password" onkeydown="if(event.key==='Enter')verifyDepartmentAccess()">
+    </div>
+    <div class="l-err" id="dept-access-err"></div>
+    <button class="mbtn pri" onclick="verifyDepartmentAccess()">Request access →</button>
+    <button class="mbtn ghost" onclick="closeDepartmentAccess()">Cancel</button>
+  </div>
+</div>
+
+<!-- ══ MODAL: STEP-UP AUTH (shown to user in corporate style) ═════ -->
+<div class="moverlay" id="m-su" style="display:none">
+  <div class="mbox">
+    <div class="mico">🔐</div>
+    <div class="mtitle">Verify your identity</div>
+    <div class="mdesc" id="su-desc">We noticed unusual activity on your Dynamo account. Please verify to continue.</div>
+    <div class="phone">
+      <div class="phnotch"></div>
+      <div class="phscreen">
+        <div class="phhdr">Dynamo · Security code</div>
+        <div class="phbody">Verification code for your account:</div>
+        <div class="phcode" id="su-code">------</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--t2);text-align:center;margin-bottom:4px">Enter the 6-digit code from your device</div>
+    <div class="cdwrap">
+      <svg width="20" height="20" viewBox="0 0 20 20" style="transform:rotate(-90deg)">
+        <circle cx="10" cy="10" r="8" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="2"/>
+        <circle id="cdcirc" cx="10" cy="10" r="8" fill="none" stroke="#fbbf24" stroke-width="2"
+          stroke-dasharray="50.3" stroke-linecap="round" style="transition:stroke-dashoffset 1s linear"/>
+      </svg>
+      <span id="cds" style="font-size:11px;color:#fbbf24;font-family:var(--mono)">30s</span>
+    </div>
+    <div class="otp-wrap" id="su-inputs"></div>
+    <div id="su-err" style="font-size:11px;color:var(--rd);text-align:center;min-height:16px;margin-bottom:8px"></div>
+    <button class="mbtn pri" onclick="verifySU()">✓ Verify</button>
+    <button class="mbtn ghost" onclick="skipSU()">Remind me later</button>
+  </div>
+</div>
+
+<!-- ══ MODAL: SESSION LOCKED ═════════════════════════════════════ -->
+<div class="moverlay" id="m-lock" style="display:none">
+  <div class="mbox danger">
+    <div class="mico">🔒</div>
+    <div class="mtitle" style="color:var(--rd)">Account temporarily locked</div>
+    <div class="mdesc">For your security, this session has been paused. Please re-authenticate to continue.</div>
+    <div class="riskbox" id="lock-info"></div>
+    <input class="pwin" type="password" id="unlock-pw" placeholder="Enter your password (any ≥4 chars in demo)" onkeydown="if(event.key==='Enter')doUnlock()">
+    <button class="mbtn pri" onclick="doUnlock()">🔓 Unlock</button>
+    <button class="mbtn dan" onclick="doTerminate()">Sign out</button>
+  </div>
+</div>
+
+<!-- ══ MODAL: TERMINATED ══════════════════════════════════════════ -->
+<div class="moverlay" id="m-term" style="display:none">
+  <div class="mbox danger" style="text-align:center">
+    <div class="mico">🚫</div>
+    <div class="mtitle" style="color:var(--rd)">Session terminated</div>
+    <div class="mdesc">Your session was terminated due to a security policy violation. An incident report has been filed.</div>
+    <div class="incbox" id="inc-box" style="text-align:left"></div>
+    <button class="mbtn dan" onclick="resetSession()">↺ Reset demo</button>
+  </div>
+</div>
+
+<script>
+const API_URL = "http://127.0.0.1:8000";
+let currentUsername = null;
+let authToken = null;
+let backendAvailable = true;
+
+async function apiRequest(path, options = {}) {
+  const response = await fetch(`${API_URL}${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(authToken ? { "Authorization": "Bearer " + authToken } : {}),
+      ...(options.headers || {})
+    }
+  });
+
+  let payload = null;
+  try { payload = await response.json(); } catch (_) { payload = null; }
+
+  if (!response.ok) {
+    const message = payload?.detail || `Backend request failed: ${response.status}`;
+    throw new Error(message);
+  }
+  return payload;
+}
+
+async function apiLogin(username, password) {
+  try {
+    const data = await apiRequest("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ username, password })
+    });
+
+    currentUsername = data.username;
+    authToken = data.token;
+    backendAvailable = true;
+
+    if (typeof CURRENT_USER !== "undefined") {
+      CURRENT_USER.username = data.username;
+      CURRENT_USER.display = formatDisplayName(data.username);
+      CURRENT_USER.role = data.role || "employee";
+      CURRENT_USER.department = data.department || "HR";
+    }
+    updateUserIdentityUI(data);
+
+    console.log("Backend login success:", data);
+    return data;
+  } catch (err) {
+    backendAvailable = false;
+    console.error("Backend login failed:", err);
+    alert(err.message || "Login failed");
+    return null;
+  }
+}
+
+async function apiAccessCheck(resource, action) {
+  if (!currentUsername) return { decision: "DENY", detail: "User is not authenticated" };
+  try {
+    const data = await apiRequest("/access/check", {
+      method: "POST",
+      body: JSON.stringify({ username: currentUsername, resource, action })
+    });
+    console.log("Backend access check:", data);
+    return data;
+  } catch (err) {
+    console.error("Backend access check failed:", err);
+    return { decision: "DENY", detail: err.message || "Access check failed" };
+  }
+}
+
+async function apiRiskEvent(eventType, resource = "workspace", action = "event", severity = "low") {
+  if (!currentUsername) return null;
+  try {
+    const data = await apiRequest("/risk/event", {
+      method: "POST",
+      body: JSON.stringify({
+        username: currentUsername,
+        event_type: eventType,
+        resource,
+        action,
+        severity
+      })
+    });
+    console.log("Backend risk event:", data);
+    return data;
+  } catch (err) {
+    console.error("Backend risk event failed:", err);
+    return null;
+  }
+}
+
+async function apiLoadAuditLogs() {
+  try {
+    const logs = await apiRequest("/audit/logs", { method: "GET" });
+    console.log("Backend audit logs:", logs);
+    return Array.isArray(logs) ? logs : [];
+  } catch (err) {
+    console.error("Backend audit log load failed:", err);
+    return [];
+  }
+}
+
+function updateUserIdentityUI(data) {
+  const username = data?.username || currentUsername || "user";
+  const display = formatDisplayName(username);
+  const role = data?.role || "employee";
+  const dept = data?.department || "HR";
+
+  const sbName = document.querySelector(".sb-uname");
+  if (sbName) sbName.textContent = display;
+
+  const avatarText = username.split(/[.@_-]/).filter(Boolean).slice(0,2).map(x => x[0]).join("").toUpperCase() || "U";
+  document.querySelectorAll(".hdr-av,.sb-av").forEach(el => el.textContent = avatarText);
+
+  const roleEl = document.querySelector(".sb-urole");
+  if (roleEl) roleEl.textContent = `${role} · ${dept}`;
+}
+
+async function renderBackendAuditLogs() {
+  const logs = await apiLoadAuditLogs();
+  if (!logs.length) return;
+  const body = document.getElementById("adm-logbody");
+  if (!body) return;
+
+  logs.slice(0, 12).reverse().forEach(log => {
+    const res = log.decision === "ALLOW" ? "ra" : log.decision === "DENY" ? "rd" : "rw";
+    const row = document.createElement("div");
+    row.className = "lrow";
+    const ts = String(log.created_at || "").slice(11, 19) || new Date().toTimeString().slice(0,8);
+    row.innerHTML = `<span class="lts">${ts}</span>
+      <span class="luser">DB:${log.username || currentUsername || "user"}</span><span class="lac">${log.action || "event"}</span>
+      <span class="ldet">${log.resource || "system"} · risk ${log.risk_score ?? 0}</span><span class="lres ${res}">${log.decision || "INFO"}</span>`;
+    body.insertBefore(row, body.firstChild);
+  });
+}
+
+function mapSeverityForBackend(sev) {
+  if (sev === "critical") return "critical";
+  if (sev === "high") return "high";
+  if (sev === "medium") return "medium";
+  return "low";
+}
+
+// ════════════════════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════════════════════
+const FILES_DATA=[
+  {id:'f1',n:'employee_records_2024.xlsx',t:'xlsx',sz:2.4,u:'MB',s:'confidential',ico:'📊',dept:'HR'},
+  {id:'f2',n:'payroll_q4_confidential.xlsx',t:'xlsx',sz:1.8,u:'MB',s:'critical',ico:'💰',dept:'HR'},
+  {id:'f3',n:'onboarding_templates.docx',t:'docx',sz:340,u:'KB',s:'public',ico:'📝',dept:'HR'},
+  {id:'f4',n:'performance_reviews_2024.pdf',t:'pdf',sz:5.1,u:'MB',s:'restricted',ico:'📋',dept:'HR'},
+  {id:'f5',n:'it_credentials_backup.txt',t:'txt',sz:12,u:'KB',s:'critical', ico:'🔑',dept:'IT'},
+  {id:'f6',n:'deploy_pipeline.sh',t:'sh',sz:4,u:'KB',s:'critical',          ico:'⚡',dept:'IT'},
+  {id:'f7',n:'database_dump_full.sql',t:'sql',sz:450,u:'MB',s:'critical',   ico:'🗃️',dept:'IT'},
+  {id:'f8',n:'q4_meeting_notes.docx',t:'docx',sz:120,u:'KB',s:'internal',ico:'📝',dept:'HR'},
+  {id:'f9',n:'all_salaries_FY2024.xlsx',t:'xlsx',sz:3.2,u:'MB',s:'critical',ico:'💰',dept:'Finance'},
+  {id:'f10',n:'org_chart_all.pdf',t:'pdf',sz:890,u:'KB',s:'confidential',ico:'📋',dept:'HR'},
+];
+
+
+const QUARANTINE=[];
+let pendingFileContext='files';
+let pendingFileBypass=false;
+const BLOCKED_UPLOAD_EXT=['exe','bat','cmd','ps1','sh','js','vbs','scr','dll','jar'];
+const SUSPICIOUS_NAME_HINTS=['payload','malware','dump','credential','mimikatz','keylogger','backdoor','shell','ransom','exploit'];
+
+const EMAILS=[
+  {id:'e1',from:'hr@dynamo.com',name:'HR Team',subj:'Welcome to Dynamo!',prev:'Hi Aiman, welcome aboard…',time:'2h ago',read:false,
+   body:`Hi Aiman,\n\nWelcome to Dynamo! We're excited to have you on the team.\n\nYour onboarding checklist:\n• Complete your profile\n• Review the HR handbook\n• Book your 1:1 with your manager\n• Join the #general channel\n\nBest regards,\nHR Team`},
+  {id:'e2',from:'dave.manager@dynamo.com',name:'Dave Park',subj:'Q4 Review Meeting',prev:'Hi team, let\'s schedule the Q4…',time:'1d ago',read:false,
+   body:`Hi Aiman,\n\nLet's schedule our Q4 review for next Thursday at 2 PM.\n\nAgenda:\n• Performance metrics\n• Goals for Q1 2025\n• Budget allocation\n\nPlease come prepared with your summary.\n\nDave`},
+  {id:'e3',from:'it@dynamo.com',name:'IT Support',subj:'Password Policy Update — Action Required',prev:'As part of our annual…',time:'2d ago',read:true,
+   body:`Dear Aiman,\n\nAs part of our annual security review, all employees must update their passwords by November 30th.\n\nRequirements:\n• Minimum 12 characters\n• Upper + lowercase + numbers + symbols\n• Cannot reuse last 5 passwords\n\nPlease update via Settings > Security.\n\nIT Security Team`},
+  {id:'e4',from:'payroll@dynamo.com',name:'Payroll',subj:'October Payslip Available',prev:'Your payslip for October…',time:'1w ago',read:true,
+   body:`Hi Aiman,\n\nYour payslip for October 2024 is now available in the HR Portal.\n\nNet pay: $4,200.00\nPayment date: October 31, 2024\n\nContact payroll@dynamo.com with any questions.\n\nPayroll Department`},
+  {id:'e5',from:'alice.wang@dynamo.com',name:'Alice Wang',subj:'Lunch tomorrow?',prev:'Hey Aiman! Are you free…',time:'3h ago',read:false,
+   body:`Hey Aiman!\n\nAre you free for lunch tomorrow? A few of us are going to the Italian place on Main St around 12:30.\n\nLet me know!\nAlice`},
+];
+
+const CHAT_MESSAGES={
+  'general':[
+    {user:'Alice Wang',av:'AW',col:'#4ade80',text:'Good morning everyone! Ready for today\'s sprint review? 🚀',time:'09:02'},
+    {user:'Bob Karim',av:'BK',col:'#f472b6',text:'Morning! Yes — finished the API integration last night, going to demo it.',time:'09:05'},
+    {user:'Dave Park',av:'DP',col:'#fb923c',text:'@Aiman make sure you check the onboarding docs in Files when you get a chance.',time:'09:18'},
+    {user:'Alice Wang',av:'AW',col:'#4ade80',text:'Also reminder: All-hands is at 3pm today in the main conference room.',time:'09:45'},
+    {user:'Bot',av:'🤖',col:'#a78bfa',text:'📅 Reminder: Q4 Review Meeting — Thursday 2:00 PM',time:'10:00'},
+  ],
+  'hr-team':[
+    {user:'Dave Park',av:'DP',col:'#fb923c',text:'HR team — please complete the performance review forms by EOD Friday.',time:'Yesterday'},
+    {user:'Sarah Chen',av:'SC',col:'#34d399',text:'Done! Also uploaded the updated onboarding checklist to the shared folder.',time:'Yesterday'},
+  ],
+  'projects':[
+    {user:'Bob Karim',av:'BK',col:'#f472b6',text:'Project Phoenix is on track for the Nov 15 deadline.',time:'2d ago'},
+    {user:'Alice Wang',av:'AW',col:'#4ade80',text:'Great! I\'ll update the stakeholder deck this afternoon.',time:'2d ago'},
+  ],
+  'it-help':[
+    {user:'IT Bot',av:'🖥',col:'#60a5fa',text:'Welcome to #it-help. For urgent issues: it@dynamo.com or ext. 4400.',time:'Pinned'},
+  ],
+  'alice':[{user:'Alice Wang',av:'AW',col:'#4ade80',text:'Hey! How are you settling in? 😊',time:'1h ago'}],
+  'bob':[{user:'Bob Karim',av:'BK',col:'#f472b6',text:'Aiman, let me know if you need help with the dev environment setup.',time:'3h ago'}],
+  'manager':[{user:'Dave Park',av:'DP',col:'#fb923c',text:'Welcome aboard Aiman! My door is always open (virtually).',time:'2d ago'}],
+};
+
+const NOTES_DATA=[
+  {id:'n1',title:'Onboarding checklist',body:'□ Complete employee profile\n□ Submit bank details to payroll\n□ Review employee handbook\n□ Book 1:1 with Dave\n□ Set up email signature\n□ Join team Slack channels'},
+  {id:'n2',title:'Q4 goals',body:'1. Complete HR system migration\n2. Onboard 3 new team members\n3. Deliver performance review cycle\n4. Update policy documentation'},
+  {id:'n3',title:'Meeting notes — Nov 5',body:'Attendees: Dave, Alice, Bob, Aiman\n\n• Sprint velocity is up 15%\n• Need to address backlog by EOQ\n• Budget review scheduled for Dec'},
+];
+
+const CAL_EVENTS=[
+  {date:new Date().getDate(),title:'Team Standup',time:'09:00 AM',loc:'Zoom · Daily',col:'#4f8df7'},
+  {date:new Date().getDate(),title:'HR Policy Review',time:'11:00 AM',loc:'Conference Room B',col:'#34d399'},
+  {date:new Date().getDate()+1,title:'All-hands Meeting',time:'03:00 PM',loc:'Main Conference Room',col:'#f472b6'},
+  {date:new Date().getDate()+2,title:'Q4 Review Meeting',time:'02:00 PM',loc:'Dave\'s office / Zoom',col:'#fb923c'},
+  {date:new Date().getDate()+5,title:'Security Training',time:'10:00 AM',loc:'Online',col:'#a78bfa'},
+];
+
+// ════════════════════════════════════════════════════════════════════
+// RISK ENGINE (15 factors, invisible to user)
+// ════════════════════════════════════════════════════════════════════
+const RF={
+  ipChange:    {l:'IP address change',    s:0,max:40,c:'#f87171',decay:.18},
+  geoJump:     {l:'Geo-location jump',    s:0,max:35,c:'#f87171',decay:.1},
+  offHours:    {l:'Off-hours access',     s:0,max:20,c:'#fb923c',decay:0},
+  massDownload:{l:'Mass download',        s:0,max:35,c:'#f87171',decay:.4},
+  dataVolume:  {l:'Data volume anomaly',  s:0,max:30,c:'#f87171',decay:.08},
+  massUpload:  {l:'Upload anomaly',       s:0,max:25,c:'#fb923c',decay:.4},
+  scriptExec:  {l:'Script execution',     s:0,max:45,c:'#f87171',decay:.04},
+  highVelocity:{l:'Action velocity',      s:0,max:25,c:'#fbbf24',decay:2},
+  failedAccess:{l:'Failed attempts',      s:0,max:30,c:'#fb923c',decay:.28},
+  privEscalate:{l:'Privilege escalation', s:0,max:45,c:'#f87171',decay:.04},
+  crossDept:   {l:'Cross-dept access',    s:0,max:20,c:'#fbbf24',decay:.28},
+  clipboard:   {l:'Clipboard exfil',      s:0,max:25,c:'#fb923c',decay:.4},
+  stageExfil:  {l:'Data staging',         s:0,max:35,c:'#f87171',decay:.08},
+  lateralMove: {l:'Lateral movement',     s:0,max:40,c:'#f87171',decay:.06},
+  enumeration: {l:'Resource enumeration', s:0,max:20,c:'#fbbf24',decay:.6},
+};
+
+const ACCESS_LEVELS={
+  4:{l:'Full Access',  col:'#2dd67b',bc:'rgba(45,214,123,.28)',bg:'rgba(45,214,123,.11)',dot:'#2dd67b'},
+  3:{l:'Caution',      col:'#fbbf24',bc:'rgba(251,191,36,.28)',bg:'rgba(251,191,36,.11)',dot:'#fbbf24'},
+  2:{l:'Restricted',   col:'#fb923c',bc:'rgba(249,115,22,.28)',bg:'rgba(249,115,22,.11)',dot:'#fb923c'},
+  1:{l:'Locked',       col:'#f87171',bc:'rgba(248,113,113,.28)',bg:'rgba(248,113,113,.11)',dot:'#f87171'},
+  0:{l:'Terminated',   col:'#f87171',bc:'rgba(248,113,113,.28)',bg:'rgba(248,113,113,.11)',dot:'#f87171'},
+};
+
+function geoFromIP(ip){
+  if(ip.startsWith('192.168.')||ip.startsWith('10.')) return {city:'Almaty, KZ',label:'Office network',trust:'high'};
+  if(ip.startsWith('172.16.')) return {city:'VPN endpoint',label:'Corporate VPN',trust:'medium'};
+  if(ip.startsWith('45.')||ip.startsWith('91.')) return {city:'Moscow, RU',label:'External ISP',trust:'low'};
+  if(ip.startsWith('185.')) return {city:'Frankfurt, DE',label:'Tor exit node',trust:'none'};
+  return {city:'Unknown',label:'External',trust:'low'};
+}
+
+// ════════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════════
+let S, loginOTP='', loginTrust=true, logCount=0, activeNote=null;
+let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
+let currentEmail=null, selectedFiles=new Set();
+let chatMsgCount=0, emailForwardCount=0, pendingDept=null;
+
+function mkState(){return{
+  sessionStart:new Date(),
+  currentIP:'192.168.1.45',
+  ipChanges:0,
+  totalActions:0,
+  dlMB:0, dlCount:0, ulCount:0, failCount:0, navCount:0,
+  chatMsgs:0, chatMsgsMinute:[],
+  timestamps:[],
+  scoreHistory:[],
+  recentSequenceActions:[], sequenceDetections:{}, currentThreat:'None',
+  suShown:false, suDismissed:false,
+  lockShown:false, isLocked:false, isTerminated:false, readOnly:false, roAnnounced:false,
+  otp:'', cdTimer:null,
+};}
+
+// ════════════════════════════════════════════════════════════════════
+// LOGIN
+// ════════════════════════════════════════════════════════════════════
+async function doLogin(){
+  const user = document.getElementById('l-user').value.trim();
+  const pass = document.getElementById('l-pass').value;
+  loginTrust = document.getElementById('l-trust').checked;
+
+  const err = document.getElementById('l-err');
+  const btn = document.getElementById('l-btn');
+
+  err.textContent = '';
+
+  if (!user || !pass || pass.length < 2) {
+    err.textContent = 'Please fill in all fields.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Authenticating…';
+
+  try {
+    const loginResult = await apiLogin(user, pass);
+
+    if (!loginResult) {
+      err.textContent = 'Authentication failed.';
+      return;
+    }
+
+    console.log('Backend login accepted:', loginResult);
+
+    if (!loginTrust) {
+      loginOTP = String(100000 + Math.floor(Math.random() * 900000));
+      document.getElementById('lmfa-code').textContent = loginOTP;
+      buildOTP('lmfa-inputs', 'lmfa', 6);
+      document.getElementById('login').style.display = 'none';
+      document.getElementById('login-mfa').style.display = 'flex';
+      return;
+    }
+
+    console.log('Calling launchApp now');
+    launchApp();
+
+  } catch (e) {
+    console.error('Login UI error:', e);
+    err.textContent = e.message || 'Login failed.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Sign in →';
+  }
+}
+
+function verifyLoginMFA(){
+  if (getOTPVal('lmfa', 6) === loginOTP) {
+    document.getElementById('login-mfa').style.display = 'none';
+    console.log('MFA accepted. Calling launchApp now');
+    launchApp();
+  } else {
+    document.getElementById('lmfa-err').textContent = 'Incorrect code. Try again.';
+  }
+}
+
+function backToLogin(){
+  document.getElementById('login-mfa').style.display = 'none';
+  document.getElementById('login').style.display = 'flex';
+}
+
+function launchApp(){
+  console.log('launchApp called');
+
+  const login = document.getElementById('login');
+  const loginMfa = document.getElementById('login-mfa');
+  const app = document.getElementById('app');
+  const adminPanel = document.getElementById('admin-panel');
+
+  if (login) {
+    login.style.display = 'none';
+    login.style.visibility = 'hidden';
+    login.style.zIndex = '-1';
+  }
+
+  if (loginMfa) {
+    loginMfa.style.display = 'none';
+    loginMfa.style.visibility = 'hidden';
+    loginMfa.style.zIndex = '-1';
+  }
+
+  if (adminPanel) {
+    adminPanel.style.display = 'none';
+  }
+
+  if (app) {
+    app.style.display = 'flex';
+    app.style.visibility = 'visible';
+    app.style.opacity = '1';
+    app.style.zIndex = '1';
+  }
+
+  document.body.style.overflow = 'hidden';
+
+  try {
+    S = mkState();
+    initWorkspace();
+  } catch (e) {
+    console.error('Workspace initialization error:', e);
+  }
+
+  try {
+    if (typeof apiLoadAuditLogs === 'function') {
+      apiLoadAuditLogs();
+    }
+  } catch (e) {
+    console.warn('Audit logs loading error:', e);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════════════════════
+function navTo(page){
+  document.querySelectorAll('.ws-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  document.getElementById(page+'-page').classList.add('active');
+  document.getElementById('nav-'+page).classList.add('active');
+  recordVelocity();
+  if(page==='files') renderFiles();
+  if(page==='calendar') renderCalendar();
+  if(page==='notes') renderNotes();
+  if(page==='email') renderEmails();
+}
+
+// ════════════════════════════════════════════════════════════════════
+// RISK ENGINE
+// ════════════════════════════════════════════════════════════════════
+function total(){let t=0;for(const k in RF)t+=RF[k].s;return Math.min(100,Math.round(t));}
+
+function applyRisk(factor,amt,msg,sev='medium'){
+  if(S.isTerminated) return;
+  if(RF[factor]) RF[factor].s=Math.min(RF[factor].max,RF[factor].s+amt);
+  pushAlert(sev,msg);
+  alog(currentUsername || CURRENT_USER.username, factor, msg.slice(0,60), sev==='critical'||sev==='high'?'DENY':'WARN');
+  apiRiskEvent(factor, 'workspace', msg.slice(0,80), mapSeverityForBackend(sev));
+  updateRiskUI();
+  evalThresholds();
+}
+
+function decayTick(){
+  for(const k in RF){const f=RF[k];if(f.decay>0&&f.s>0)f.s=Math.max(0,f.s-f.decay);}
+  const h=new Date().getHours(),off=h<8||h>=20;
+  RF.offHours.s=off?20:Math.max(0,RF.offHours.s-.4);
+  updateRiskUI();
+}
+
+function calcLevel(){
+  const sc=total();
+  if(S.isTerminated||sc>=90)return 0;
+  if(S.isLocked||sc>=72)    return 1;
+  if(sc>=50)                 return 2;
+  if(sc>=25)                 return 3;
+  return 4;
+}
+
+function evalThresholds(){
+  const sc=total(),lv=calcLevel();
+  // Update user-visible risk indicator (just a dot, no score)
+  const ind=document.getElementById('user-risk-indicator');
+  if(sc>=72){ind.style.background='#f87171';ind.classList.add('warn');}
+  else if(sc>=50){ind.style.background='#fb923c';ind.classList.add('warn');}
+  else if(sc>=25){ind.style.background='#fbbf24';ind.classList.remove('warn');}
+  else{ind.style.background='#34d399';ind.classList.remove('warn');}
+
+  enforceReadOnlyState();
+
+  if(sc>=90&&!S.isTerminated){S.isTerminated=true;setTimeout(showTerminated,600);return;}
+  if(lv<=1&&!S.lockShown&&!S.isTerminated){S.lockShown=true;setTimeout(showLocked,700);return;}
+  if(lv<=2&&!S.suShown&&!S.suDismissed&&!S.isLocked){
+    S.suShown=true;
+    setTimeout(()=>showSU(),500);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// READ-ONLY RESTRICTED MODE
+// ════════════════════════════════════════════════════════════════════
+const WRITE_ACTION_KEYWORDS=[
+  'sendChat','openVirusTotalCheck','downloadSel','addEvent','sendEmail','emailReply','emailForwardExternal',
+  'emailDelete','massDownloadAll','noteExport','notePasteAll','saveNote','newNote','showDepartmentAccess',
+  'verifyDepartmentAccess','vtSelectFile'
+];
+
+function isReadOnlyRequired(){
+  return !!S && !S.isLocked && !S.isTerminated && total()>=50;
+}
+
+function setReadOnlyMode(on, reason='Risk threshold reached'){
+  if(!S) return;
+  const changed=S.readOnly!==on;
+  S.readOnly=on;
+  syncReadOnlyUI();
+  if(!changed) return;
+  if(on){
+    S.roAnnounced=true;
+    pushAlert('medium','Read-only restricted mode enabled — write and file-transfer operations paused');
+    alog('SYSTEM','access:readonly_on',reason,'WARN');
+    showToast('Read-only mode enabled: complete MFA to restore write access.');
+  }else{
+    pushAlert('info','Read-only restricted mode disabled — full workspace access restored');
+    alog('SYSTEM','access:readonly_off','Step-up verification or risk reduction restored access','ALLOW');
+    showToast('Full workspace access restored.');
+  }
+}
+
+function enforceReadOnlyState(){
+  if(!S) return;
+  setReadOnlyMode(isReadOnlyRequired(), `Risk score ${total()}/100`);
+}
+
+function syncReadOnlyUI(){
+  const on=!!(S&&S.readOnly);
+  document.body.classList.toggle('readonly-mode',on);
+  const banner=document.getElementById('readonly-banner');
+  if(banner) banner.style.display=on?'flex':'none';
+
+  document.querySelectorAll('button').forEach(btn=>{
+    const oc=btn.getAttribute('onclick')||'';
+    const isWrite=WRITE_ACTION_KEYWORDS.some(k=>oc.includes(k));
+    if(isWrite){btn.disabled=on;btn.classList.toggle('ro-write',on);}
+  });
+
+  ['chat-input','compose-to','compose-cc','compose-subj','compose-body','note-title-inp','note-body-inp'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.readOnly=on;
+    el.classList.toggle('ro-write',on);
+  });
+}
+
+function canWrite(action='this action'){
+  if(!S||S.isTerminated||S.isLocked) return false;
+  enforceReadOnlyState();
+  if(S.readOnly){
+    showToast(`Read-only mode: ${action} is temporarily blocked until MFA verification.`);
+    alog(CURRENT_USER?CURRENT_USER.username:'aiman.sholpan','access:readonly_deny',action,'DENY');
+    return false;
+  }
+  return true;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// VELOCITY
+// ════════════════════════════════════════════════════════════════════
+function recordVelocity(){
+  if(!S) return;
+  const now=Date.now();
+  S.timestamps.push(now);
+  S.timestamps=S.timestamps.filter(t=>now-t<60000);
+  S.totalActions++;
+  const v=S.timestamps.length;
+  let vs=0;
+  if(v>=20)vs=25;else if(v>=12)vs=15;else if(v>=8)vs=8;
+  if(vs>RF.highVelocity.s){RF.highVelocity.s=vs;
+    if(v>=12)applyRisk('highVelocity',0,`Action velocity: ${v}/min — automation suspected`,'medium');}
+}
+
+
+// ════════════════════════════════════════════════════════════════════
+// DEPARTMENT ACCESS CONTROL
+// ════════════════════════════════════════════════════════════════════
+let CURRENT_USER={username:'aiman.sholpan',display:'Aiman Sholpan',role:'employee',department:'HR'};
+const DEPARTMENT_PORTALS={
+  HR:{title:'HR Portal',icon:'👥',department:'HR',classification:'internal',description:'Human resources documents, onboarding records, employee records and policy materials.'},
+  Finance:{title:'Finance Systems',icon:'💰',department:'Finance',classification:'critical',description:'Payroll, budget reports, salary information and financial records.'},
+  IT:{title:'IT Systems',icon:'🖥',department:'IT',classification:'critical',description:'Infrastructure tools, credentials, deployment scripts and administrative systems.'}
+};
+
+
+// ════════════════════════════════════════════════════════════════════
+// CLASSIFICATION-AWARE ADAPTIVE ACCESS CONTROL
+// ════════════════════════════════════════════════════════════════════
+const CLASSIFICATION_META={
+  public:{label:'Public',rank:1,cls:'cls-public',desc:'Low sensitivity object'},
+  internal:{label:'Internal',rank:2,cls:'cls-internal',desc:'Routine internal workspace object'},
+  confidential:{label:'Confidential',rank:3,cls:'cls-confidential',desc:'Sensitive business data'},
+  restricted:{label:'Restricted',rank:4,cls:'cls-restricted',desc:'Department-restricted sensitive object'},
+  critical:{label:'Critical',rank:5,cls:'cls-critical',desc:'Highly sensitive or privileged object'}
+};
+
+function normalizeClass(v){
+  const x=String(v||'internal').toLowerCase();
+  if(['public','internal','confidential','restricted','critical'].includes(x)) return x;
+  if(x==='low') return 'internal';
+  if(x==='medium') return 'confidential';
+  if(x==='high') return 'restricted';
+  return 'critical';
+}
+function classMeta(v){return CLASSIFICATION_META[normalizeClass(v)]||CLASSIFICATION_META.internal;}
+function classBadge(v){
+  const m=classMeta(v);
+  return `<span class="cls-badge ${m.cls}" title="${m.desc}">${m.label}</span>`;
+}
+function riskBand(){
+  const sc=total();
+  if(sc>=90) return 'critical';
+  if(sc>=72) return 'high';
+  if(sc>=50) return 'elevated';
+  if(sc>=25) return 'medium';
+  return 'low';
+}
+function riskBandLabel(){
+  const b=riskBand();
+  return b==='low'?'Low':b==='medium'?'Medium':b==='elevated'?'Elevated / read-only':b==='high'?'High':'Critical';
+}
+function objectLabel(obj){return obj.title||obj.n||obj.name||'object';}
+function isTransferAction(action){return ['download','upload','send','forward','delete','write','export','enter'].includes(action);}
+
+function evaluateObjectAccess(obj,action='read',opts={}){
+  const user=CURRENT_USER||{username:'aiman.sholpan',department:'HR'};
+  const c=normalizeClass(obj.classification||obj.cls||obj.c||obj.s);
+  const rank=classMeta(c).rank;
+  const band=riskBand();
+  const dept=obj.dept||obj.department;
+  const name=objectLabel(obj);
+  let decision='allow';
+  let reason='Policy allows requested action.';
+
+  if(!S || S.isTerminated){decision='deny';reason='Session is terminated.';}
+  else if(S.isLocked){decision='deny';reason='Session is locked.';}
+  else if(dept && dept!==user.department && action!=='read'){
+    decision='deny';reason=`Department mismatch: ${user.department} user cannot ${action} ${dept} object.`;
+  }
+  else if(dept && dept!==user.department && action==='read' && rank>=4){
+    decision='deny';reason=`Department mismatch: ${user.department} user cannot read ${dept} restricted object.`;
+  }
+  else if(S.readOnly && isTransferAction(action)){
+    decision='deny';reason='Read-only restricted mode blocks write, transfer and modification actions.';
+  }
+  else if(band==='critical'){
+    decision='deny';reason='Critical session risk blocks object access.';
+  }
+  else if(band==='high'){
+    if(rank<=2 && action==='read'){decision='view-only';reason='High risk allows only view-only access to low-sensitivity objects.';}
+    else {decision='deny';reason='High risk denies access to confidential, restricted and critical objects.';}
+  }
+  else if(band==='elevated'){
+    if(action==='read' && rank<=2){decision='view-only';reason='Elevated risk allows read-only access to public/internal objects.';}
+    else if(action==='read' && rank===3){decision='view-only';reason='Elevated risk allows only read-only access to confidential objects.';}
+    else if(rank>=4){decision='deny';reason='Elevated risk denies restricted and critical objects.';}
+    else if(isTransferAction(action)){decision='deny';reason='Elevated risk blocks transfer and modification actions.';}
+  }
+  else if(band==='medium'){
+    if(rank>=5 && action!=='read'){decision='deny';reason='Medium risk denies transfer/modification of critical objects.';}
+    else if(rank>=4 && ['download','send','forward','delete','write','export'].includes(action)){decision='deny';reason='Medium risk denies high-sensitivity object transfer or modification.';}
+    else if(rank>=3 && ['download','send','forward','delete','write','export'].includes(action)){decision='view-only';reason='Medium risk reduces confidential objects to view-only.';}
+    else if(rank>=5 && action==='read'){decision='deny';reason='Medium risk denies critical object preview.';}
+  }
+
+  const result={decision,reason,classification:c,classificationLabel:classMeta(c).label,risk:band,riskLabel:riskBandLabel(),object:name,action};
+  if(opts.log!==false){
+    const res=decision==='allow'?'ALLOW':decision==='view-only'?'WARN':'DENY';
+    alog(user.username,'access:object_policy',`${name} · ${classMeta(c).label} · ${action} · ${riskBandLabel()} · ${decision}` ,res);
+  }
+  return result;
+}
+
+function enforceObjectAccess(obj,action='read',opts={}){
+  const r=evaluateObjectAccess(obj,action,opts);
+  if(r.decision==='deny'){
+    showToast(`Access denied: ${r.object} (${r.classificationLabel}). ${r.reason}`);
+    if(r.reason.includes('Department mismatch')) applyRisk('crossDept',10,`Object policy denied cross-department ${action}: ${r.object}`,'medium');
+    else if(r.classification==='critical'||r.classification==='restricted') applyRisk('failedAccess',6,`Object policy denied ${action}: ${r.object}`,'medium');
+    return r;
+  }
+  if(r.decision==='view-only'){
+    showToast(`View-only access: ${r.object} (${r.classificationLabel}).`);
+  }
+  return r;
+}
+
+async function showDepartmentAccess(dept){
+  if(!S||S.isTerminated||S.isLocked) return;
+  if(!canWrite('department portal access')) return;
+  const p=DEPARTMENT_PORTALS[dept];
+  if(!p) return;
+
+  const backendResource = dept === 'Finance' ? 'finance_portal' : dept === 'IT' ? 'admin_panel' : 'workspace';
+  const backendDecision = await apiAccessCheck(backendResource, 'view');
+  if(backendDecision.decision === 'DENY'){
+    showToast(`Backend policy denied access to ${p.title}.`);
+    if(dept !== CURRENT_USER.department) applyRisk('crossDept',16,`${p.title} access denied by backend RBAC policy`,'high');
+    alog(currentUsername || CURRENT_USER.username,'backend:access_denied',`${backendResource}:view`,'DENY');
+    return;
+  }
+
+  pendingDept=dept;
+  document.getElementById('dept-access-title').textContent=`${p.icon} ${p.title} access`;
+  document.getElementById('dept-access-desc').textContent=p.description;
+  document.getElementById('dept-access-info').innerHTML=`Requested department: <strong>${p.department}</strong><br>Object classification: <strong>${classMeta(p.classification).label}</strong><br>Current user: <strong>${CURRENT_USER.display}</strong><br>User department: <strong>${CURRENT_USER.department}</strong>`;
+  document.getElementById('dept-user').value=CURRENT_USER.username;
+  document.getElementById('dept-pass').value='';
+  document.getElementById('dept-access-err').textContent='';
+  document.getElementById('dept-access-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('dept-pass').focus(),50);
+  alog(CURRENT_USER.username,'dept:access_prompt',`${p.title} requested`,'WARN');
+}
+
+function closeDepartmentAccess(){
+  document.getElementById('dept-access-modal').style.display='none';
+  pendingDept=null;
+}
+
+function verifyDepartmentAccess(){
+  if(!pendingDept) return;
+  if(!canWrite('department portal authentication')) return;
+  const p=DEPARTMENT_PORTALS[pendingDept];
+  const user=document.getElementById('dept-user').value.trim().toLowerCase();
+  const pass=document.getElementById('dept-pass').value;
+  const err=document.getElementById('dept-access-err');
+  err.textContent='';
+  if(!user||!pass){err.textContent='Enter username and department password.';return;}
+
+  const identityOk=(user===CURRENT_USER.username || user===CURRENT_USER.username+'@dynamo.com');
+  const passwordOk=pass.length>=2; // demo: any non-empty account password is accepted for the allowed department
+  const departmentOk=(CURRENT_USER.department===p.department);
+
+  if(identityOk && passwordOk && departmentOk){
+    const policy=enforceObjectAccess({title:p.title,department:p.department,classification:p.classification},'enter');
+    if(policy.decision==='deny'){
+      err.textContent='Access denied by classification-aware adaptive policy.';
+      updateRiskUI();
+      return;
+    }
+    alog(CURRENT_USER.username,'dept:access_granted',`${p.title} opened · ${policy.classificationLabel} · ${policy.riskLabel}`,'ALLOW');
+    showToast(`${p.title} access granted.`);
+    closeDepartmentAccess();
+    openDepartmentPortal(pendingDept);
+    return;
+  }
+
+  S.failCount++;
+  const reason=!departmentOk?`Unauthorized cross-department access attempt: ${CURRENT_USER.department} user requested ${p.department}`:'Invalid department credentials';
+  recordSequenceAction('failed_department_access',{department:p.department,portal:p.title,reason});
+  applyRisk('failedAccess',8,`Department access denied: ${p.title}`,'medium');
+  if(!departmentOk){
+    applyRisk('crossDept',18,reason,'high');
+    if(pendingDept==='IT') applyRisk('privEscalate',18,'IT Systems access attempt by non-IT user','high');
+  }
+  alog(CURRENT_USER.username,'dept:access_denied',`${p.title} — ${reason}`,'DENY');
+  err.textContent=!departmentOk?'Access denied: this user is not assigned to this department.':'Access denied: invalid credentials.';
+  updateRiskUI();
+}
+
+function openDepartmentPortal(dept){
+  const p=DEPARTMENT_PORTALS[dept];
+  if(dept==='HR'){
+    navTo('files');
+    const path=document.querySelector('.files-path');
+    if(path) path.textContent='/shares/HR/Documents/';
+    showToast('HR document workspace opened.');
+  }else{
+    showToast(`${p.title} module is protected in this prototype.`);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// BEHAVIORAL SEQUENCE ANALYSIS
+// Detects dangerous chains of actions without replacing existing risk logic.
+// ════════════════════════════════════════════════════════════════════
+const SEQUENCE_WINDOW_MS=5*60*1000;
+const SEQUENCE_COOLDOWN_MS=2*60*1000;
+
+function recordSequenceAction(type,meta={}){
+  if(!S||S.isTerminated) return;
+  const now=Date.now();
+  if(!S.recentSequenceActions) S.recentSequenceActions=[];
+  S.recentSequenceActions.push({type,time:now,...meta});
+  S.recentSequenceActions=S.recentSequenceActions.filter(a=>now-a.time<=SEQUENCE_WINDOW_MS);
+  checkSequenceThreats(now);
+}
+
+function hasSeq(type,filter=null,windowMs=SEQUENCE_WINDOW_MS){
+  if(!S||!S.recentSequenceActions) return false;
+  const now=Date.now();
+  return S.recentSequenceActions.some(a=>a.type===type && now-a.time<=windowMs && (!filter||filter(a)));
+}
+
+function hasOrderedSeq(types,windowMs=SEQUENCE_WINDOW_MS){
+  if(!S||!S.recentSequenceActions) return false;
+  const now=Date.now();
+  const actions=S.recentSequenceActions.filter(a=>now-a.time<=windowMs).sort((a,b)=>a.time-b.time);
+  let idx=0;
+  for(const a of actions){
+    const expected=types[idx];
+    const ok=Array.isArray(expected)?expected.includes(a.type):a.type===expected;
+    if(ok) idx++;
+    if(idx>=types.length) return true;
+  }
+  return false;
+}
+
+function triggerSequenceThreat(key,label,detail,risks){
+  if(!S.sequenceDetections) S.sequenceDetections={};
+  const now=Date.now();
+  if(S.sequenceDetections[key] && now-S.sequenceDetections[key]<SEQUENCE_COOLDOWN_MS) return;
+  S.sequenceDetections[key]=now;
+  S.currentThreat=label;
+  pushAlert('critical',`${label}: ${detail}`);
+  alog('SYSTEM','sequence:detected',`${label} — ${detail}`,'WARN');
+  risks.forEach(r=>applyRisk(r.factor,r.amount,`${label}: ${r.message}`,r.severity||'high'));
+  updateRiskUI();
+}
+
+function checkSequenceThreats(now=Date.now()){
+  const sensitiveOpen=hasSeq('sensitive_open',a=>['confidential','restricted','critical'].includes(a.classification));
+  const criticalOpen=hasSeq('sensitive_open',a=>['restricted','critical'].includes(a.classification));
+  const externalMail=hasSeq('external_email')||hasSeq('external_forward');
+  const sensitiveThenExternal=hasOrderedSeq(['sensitive_open',['external_email','external_forward']]);
+  const criticalClipboardTransfer=hasOrderedSeq(['critical_open','clipboard_copy',['file_attach','external_email','external_forward']]);
+  const unsafeThenTransfer=hasOrderedSeq([['vt_bypass','unsafe_file_blocked'],['file_attach','external_email','external_forward']]);
+  const failedDeptThenSensitive=hasOrderedSeq(['failed_department_access',['sensitive_open','critical_download']]);
+  const crossScopeThenTransfer=hasOrderedSeq([['failed_department_access','cross_department_file'],['mass_download_attempt','critical_download','vt_bypass']]);
+  const failedIT=hasSeq('failed_department_access',a=>a.department==='IT');
+  const massDownload=hasSeq('mass_download_attempt');
+  const vtBypass=hasSeq('vt_bypass');
+  const criticalDownload=hasSeq('critical_download');
+
+  if(sensitiveThenExternal){
+    triggerSequenceThreat('data_exfiltration','Possible data exfiltration','sensitive object access followed by external email/forward within 5 minutes',[
+      {factor:'stageExfil',amount:24,message:'sensitive object followed by external transfer path',severity:'critical'},
+      {factor:'dataVolume',amount:10,message:'classified business data may be leaving the workspace',severity:'high'}
+    ]);
+  }
+
+  if(criticalClipboardTransfer){
+    triggerSequenceThreat('clipboard_exfiltration_chain','Clipboard-assisted exfiltration pattern','critical/restricted object preview, clipboard copy, and transfer action occurred in one sequence',[
+      {factor:'clipboard',amount:18,message:'copy operation after classified object access',severity:'high'},
+      {factor:'stageExfil',amount:18,message:'clipboard plus transfer behavior indicates staging',severity:'critical'}
+    ]);
+  }
+
+  if(unsafeThenTransfer){
+    triggerSequenceThreat('malware_delivery_chain','Possible malware delivery attempt','unsafe upload or scan bypass combined with file transfer/email behavior',[
+      {factor:'scriptExec',amount:22,message:'unsafe file workflow combined with transfer action',severity:'critical'},
+      {factor:'massUpload',amount:16,message:'file security verification workflow abused',severity:'high'}
+    ]);
+  }
+
+  if(failedDeptThenSensitive){
+    triggerSequenceThreat('privilege_probing_chain','Unauthorized privilege probing','failed department access followed by sensitive object interaction',[
+      {factor:'privEscalate',amount:20,message:'department access failure followed by sensitive file activity',severity:'high'},
+      {factor:'crossDept',amount:12,message:'possible probing across authorization boundaries',severity:'high'}
+    ]);
+  }
+
+  if(crossScopeThenTransfer){
+    triggerSequenceThreat('insider_threat_chain','Possible insider threat pattern','cross-department probing combined with high-risk download or bypass behavior',[
+      {factor:'lateralMove',amount:24,message:'cross-scope actions indicate lateral movement risk',severity:'critical'},
+      {factor:'stageExfil',amount:16,message:'high-risk object transfer pattern detected',severity:'high'}
+    ]);
+  }
+}
+
+document.addEventListener('copy',()=>{
+  if(!S||S.isTerminated) return;
+  recordSequenceAction('clipboard_copy',{source:'browser_copy'});
+});
+
+// ════════════════════════════════════════════════════════════════════
+// USER ACTIONS (invisible risk calculation)
+// ════════════════════════════════════════════════════════════════════
+function act(type){
+  if(!S||S.isTerminated||S.isLocked) return;
+  const writeTypes=['chatUpload','chatEmoji','emailReply','emailForwardExternal','emailDelete','emailAttach','fileUpload','fileUploadBypass','massDownloadAll','navHR','navFinance','navIT','noteExport','notePasteAll'];
+  if(writeTypes.includes(type) && !canWrite(type)) return;
+  recordVelocity();
+  S.navCount++;
+  if(S.navCount>12) RF.enumeration.s=Math.min(RF.enumeration.max,RF.enumeration.s+2);
+
+  switch(type){
+    case 'chatUpload':
+      openVirusTotalCheck('chat');
+      break;
+    case 'chatEmoji':
+      document.getElementById('chat-input').value+='😊';
+      document.getElementById('chat-input').focus();
+      break;
+    case 'notifications':
+      showToast('Notifications: 3 unread chat messages, 5 unread emails, security monitoring active.');
+      document.getElementById('notif-badge').style.display='none';
+      alog('aiman.sholpan','notifications:open','Notification center opened','ALLOW');
+      break;
+    case 'emailReply':
+      if(currentEmail){
+        openCompose();
+        document.getElementById('compose-to').value=currentEmail.from;
+        document.getElementById('compose-subj').value='Re: '+currentEmail.subj.replace(/^Re: /,'');
+        document.getElementById('compose-body').value=`\n\n--- Original message ---\n${currentEmail.body}`;
+        alog('aiman.sholpan','email:reply',`Draft reply to ${currentEmail.from}`,'ALLOW');
+      } else showToast('Select an email first.');
+      break;
+    case 'emailForwardExternal':
+      if(!currentEmail){showToast('Select an email first.');break;}
+      const fto=prompt('Forward to:', 'external@example.com');
+      if(!fto) break;
+      openCompose();
+      document.getElementById('compose-to').value=fto;
+      document.getElementById('compose-subj').value='Fwd: '+currentEmail.subj.replace(/^Fwd: /,'');
+      document.getElementById('compose-body').value=`Forwarded message:\nFrom: ${currentEmail.from}\nSubject: ${currentEmail.subj}\n\n${currentEmail.body}`;
+      emailForwardCount++;
+      if(!fto.includes('@dynamo.com')){
+        recordSequenceAction('external_forward',{to:fto,subject:currentEmail.subj});
+        applyRisk('stageExfil', emailForwardCount>=2?20:10,`Email forward draft to external domain: ${fto}`,emailForwardCount>=2?'high':'medium');
+      }
+      alog('aiman.sholpan','email:forward',`Draft forward: "${currentEmail.subj}" to ${fto}`,'WARN');
+      break;
+    case 'emailDelete':
+      if(currentEmail&&confirm(`Delete email: ${currentEmail.subj}?`)){
+        const idx=EMAILS.findIndex(e=>e.id===currentEmail.id);
+        if(idx>=0) EMAILS.splice(idx,1);
+        currentEmail=null; renderEmails();
+        document.getElementById('email-content').innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--t3)">Email deleted</div>';
+        ['email-reply-btn','email-fwd-btn','email-del-btn'].forEach(id=>document.getElementById(id).style.display='none');
+        alog('aiman.sholpan','email:delete','Email deleted','ALLOW');
+      }
+      break;
+    case 'emailAttach':
+      openVirusTotalCheck('email');
+      break;
+    case 'fileUpload':
+      openVirusTotalCheck('files');
+      break;
+    case 'fileUploadBypass':
+      openVirusTotalCheck('files');
+      break;
+    case 'massDownloadAll':
+      FILES_DATA.forEach(f=>selectedFiles.add(f.id));
+      renderFiles();
+      setTimeout(()=>downloadSel(true),250);
+      break;
+    case 'navHR':
+      navTo('files');
+      showToast('HR Portal opened: HR document workspace.');
+      alog('aiman.sholpan','nav:hr_portal','/hr/portal','ALLOW');
+      break;
+    case 'navFinance':
+      S.failCount++;
+      applyRisk('crossDept',16,'Finance portal access by HR employee — unauthorized','high');
+      applyRisk('failedAccess',7,'Access denied: Finance systems','medium');
+      break;
+    case 'navIT':
+      applyRisk('privEscalate',20,'IT Systems navigation by non-IT employee','medium');
+      applyRisk('enumeration',8,'IT system enumeration attempt','medium');
+      break;
+    case 'noteExport':
+      const wc=document.getElementById('note-body-inp').value.split(/\s+/).filter(Boolean).length;
+      const nt=(document.getElementById('note-title-inp').value||'note').replace(/[^a-z0-9_-]+/gi,'_');
+      downloadText(nt+'.txt', document.getElementById('note-title-inp').value+'\n\n'+document.getElementById('note-body-inp').value);
+      if(wc>200) applyRisk('dataVolume',15,`Large note export: ${wc} words — data exfiltration`,'high');
+      alog('aiman.sholpan','note:export',`Note exported (${wc} words)`,'WARN');
+      showToast('Note exported as TXT file.');
+      break;
+    case 'notePasteAll':
+      applyRisk('clipboard',25,'Large clipboard paste: bulk data — clipboard exfiltration vector','high');
+      document.getElementById('note-body-inp').value+='\n\n[PASTED: 2,340 records from clipboard — employee_data_all.csv]';
+      noteChange();
+      break;
+    case 'search': break;
+  }
+  updateRiskUI();
+}
+
+function downloadSel(fromMass=false){
+  if(!S||S.isTerminated||S.isLocked) return;
+  if(!canWrite('file download')) return;
+  const sel=FILES_DATA.filter(f=>selectedFiles.has(f.id));
+  if(!sel.length){alert('Select files first');return;}
+
+  apiAccessCheck('file','download').then(decision=>{
+    if(decision.decision === 'DENY'){
+      showToast('Backend RBAC policy denied file download.');
+      alog(currentUsername || CURRENT_USER.username,'backend:download_denied','file:download','DENY');
+      applyRisk('failedAccess',7,'Backend denied file download action','medium');
+      return;
+    }
+    continueDownloadSel(sel, fromMass);
+  });
+  return;
+}
+
+function continueDownloadSel(sel, fromMass=false){
+  recordVelocity();
+  let mb=0, allowed=0, denied=0, viewOnly=0;
+  sel.forEach(f=>{
+    const pol=enforceObjectAccess(f,'download');
+    if(pol.decision==='deny'){denied++;return;}
+    if(pol.decision==='view-only'){viewOnly++;denied++;alog('aiman.sholpan','file:download_blocked',`${f.n} · view-only policy`,'DENY');return;}
+    const fsz=toMB(f); mb+=fsz; S.dlMB+=fsz; S.dlCount++; allowed++;
+    if(normalizeClass(f.s)==='critical') applyRisk('dataVolume',14,`Critical file downloaded: ${f.n}`,'high');
+    if(normalizeClass(f.s)==='restricted') applyRisk('dataVolume',10,`Restricted file downloaded: ${f.n}`,'medium');
+    if(f.dept!=='HR') applyRisk('crossDept',13,`Cross-dept file: ${f.n} (${f.dept})`,'high');
+    alog('aiman.sholpan','file:download',`${f.n} (${f.sz}${f.u}) · ${pol.classificationLabel}`,'ALLOW');
+    if(['restricted','critical'].includes(normalizeClass(f.classification||f.s))) recordSequenceAction('critical_download',{file:f.n,classification:normalizeClass(f.classification||f.s),department:f.dept});
+  });
+  if(allowed>=5 || fromMass) recordSequenceAction('mass_download_attempt',{selected:sel.length,allowed,blocked:denied,mb:Number(mb.toFixed(1))});
+  if(allowed>=5 || fromMass) applyRisk('massDownload',30,`Mass download attempt: ${sel.length} selected, ${allowed} allowed, ${denied} blocked (${mb.toFixed(1)} MB)`,'critical');
+  else if(allowed>=3) applyRisk('massDownload',13,`Batch download: ${allowed} files`,'high');
+  if(S.dlMB>50) applyRisk('dataVolume',11,`Session data volume: ${S.dlMB.toFixed(0)} MB (baseline <10 MB)`,'high');
+  showToast(`Download policy: ${allowed} allowed, ${denied} blocked${viewOnly?`, ${viewOnly} view-only`:''}.`);
+  updateRiskUI();
+}
+
+// ════════════════════════════════════════════════════════════════════
+// CHAT APP
+// ════════════════════════════════════════════════════════════════════
+let currentChannel='general';
+function switchChannel(ch){
+  currentChannel=ch;
+  document.querySelectorAll('.ch-item').forEach(i=>i.classList.remove('active'));
+  event.target.classList.add('active');
+  const titles={'general':'# general','hr-team':'# hr-team','projects':'# projects',
+    'it-help':'# it-help','alice':'💬 Alice Wang','bob':'💬 Bob Karim','manager':'💬 Dave Park'};
+  document.getElementById('chat-channel-title').textContent=titles[ch]||ch;
+  document.getElementById('chat-input').placeholder=`Message ${titles[ch]||ch}…`;
+  renderChatMessages();
+  if(ch==='it-help') applyRisk('enumeration',6,'Navigating to IT channel — possible information gathering','low');
+  recordVelocity();
+}
+
+function renderChatMessages(){
+  const msgs=CHAT_MESSAGES[currentChannel]||[];
+  const el=document.getElementById('chat-msgs');
+  el.innerHTML=msgs.map(m=>`
+    <div class="msg ${m.mine?'msg-mine':''}">
+      <div class="msg-av" style="background:rgba(255,255,255,.06);color:${m.col||'#8b96b5'};font-size:${m.av&&m.av.length===1?'18px':'11px'}">${m.av}</div>
+      <div class="msg-body">
+        <div class="msg-meta"><span class="msg-name" style="color:${m.col||'var(--t2)'}">${m.user}</span><span class="msg-ts">${m.time}</span></div>
+        <div class="msg-text">${m.text}</div>
+      </div>
+    </div>`).join('');
+  el.scrollTop=el.scrollHeight;
+}
+
+function chatKeydown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}}
+function chatTyping(){recordVelocity();}
+
+function sendChat(){
+  if(!canWrite('sending chat messages')) return;
+  const inp=document.getElementById('chat-input');
+  const text=inp.value.trim(); if(!text) return;
+  inp.value='';
+  if(!CHAT_MESSAGES[currentChannel]) CHAT_MESSAGES[currentChannel]=[];
+  const avText = CURRENT_USER.display.split(/[.@_-]/).filter(Boolean).slice(0,2).map(x => x[0]).join("").toUpperCase() || "U";
+  CHAT_MESSAGES[currentChannel].push({user:CURRENT_USER.display,av:avText,col:'#4f8df7',text,time:'Just now',mine:true});
+  renderChatMessages();
+  recordVelocity();
+  S.chatMsgs++;
+  const now=Date.now();
+  S.chatMsgsMinute.push(now);
+  S.chatMsgsMinute=S.chatMsgsMinute.filter(t=>now-t<60000);
+  const rate=S.chatMsgsMinute.length;
+  if(rate>=10) applyRisk('highVelocity',15,`Rapid messaging: ${rate} messages/min — automation/bot pattern`,'high');
+  if(text.includes('@admin')||text.includes('admin')){
+    applyRisk('privEscalate',18,'Admin mention in chat — possible privilege escalation probe','medium');
+  }
+  document.getElementById('chat-badge').style.display='none';
+  alog(CURRENT_USER.username,'chat:message',`[${currentChannel}] ${text.slice(0,40)}` , 'ALLOW');
+}
+
+function addChatMsg(user,av,text,mine=false){
+  if(!CHAT_MESSAGES[currentChannel]) CHAT_MESSAGES[currentChannel]=[];
+  CHAT_MESSAGES[currentChannel].push({user,av,col:mine?'#4f8df7':'#f472b6',text,time:'Just now',mine});
+  renderChatMessages();
+}
+
+// ════════════════════════════════════════════════════════════════════
+// EMAIL APP
+// ════════════════════════════════════════════════════════════════════
+function renderEmails(){
+  document.getElementById('email-items').innerHTML=EMAILS.map(e=>`
+    <div class="email-item ${currentEmail&&currentEmail.id===e.id?'active':''} ${!e.read?'unread':''}"
+      onclick="openEmail('${e.id}')">
+      <div class="email-from">
+        <span style="${!e.read?'color:var(--t1);font-weight:700':''}">${e.name}</span>
+        <span style="font-size:10px;color:var(--t3)">${e.time}</span>
+      </div>
+      <div class="email-subj">${e.subj}</div>
+      <div class="email-prev">${e.prev}</div>
+    </div>`).join('');
+}
+
+function openEmail(id){
+  currentEmail=EMAILS.find(e=>e.id===id);
+  if(!currentEmail) return;
+  currentEmail.read=true;
+  renderEmails();
+  document.getElementById('email-content').innerHTML=`
+    <div class="email-hdr-row">
+      <div>
+        <div class="email-subj-big">${currentEmail.subj}</div>
+        <div class="email-meta-detail">
+          From: ${currentEmail.from}<br>
+          To: aiman.sholpan@dynamo.com<br>
+          Date: Today · ${currentEmail.time}
+        </div>
+      </div>
+    </div>
+    <div class="email-body-text">${currentEmail.body}</div>`;
+  ['email-reply-btn','email-fwd-btn','email-del-btn'].forEach(id=>{
+    document.getElementById(id).style.display='flex';
+  });
+  recordVelocity();
+  alog('aiman.sholpan','email:open',`"${currentEmail.subj.slice(0,40)}"`,'ALLOW');
+  // Check for sensitive emails
+  if(currentEmail.id==='e3') applyRisk('crossDept',5,'IT security email accessed — cross-dept info exposure','low');
+}
+
+function openCompose(){
+  if(!canWrite('email composition')) return;
+  document.getElementById('compose-modal-inner').style.display='flex';
+  recordVelocity();
+}
+function closeCompose(){document.getElementById('compose-modal-inner').style.display='none';}
+function sendEmail(){
+  if(!canWrite('sending email')) return;
+  const to=document.getElementById('compose-to').value.trim();
+  const subj=document.getElementById('compose-subj').value.trim();
+  const body=document.getElementById('compose-body').value.trim();
+  if(!to){document.getElementById('compose-to').focus();return;}
+  closeCompose();
+  recordVelocity();
+  // External domain check
+  const isExternal=to.includes('@')&&!to.includes('@dynamo.com');
+  if(isExternal){
+    emailForwardCount++;
+    recordSequenceAction('external_email',{to,subject:subj||'(no subject)',bodyLength:body.length});
+    applyRisk('stageExfil',18,`Email sent to external domain: ${to} — exfiltration risk`,'high');
+    applyRisk('dataVolume',10,'External email with company data','medium');
+  }
+  if(body.length>500) applyRisk('dataVolume',8,'Large email body — data volume anomaly','low');
+  EMAILS.unshift({id:'sent'+Date.now(),from:CURRENT_USER.username+'@dynamo.com',name:CURRENT_USER.display,subj:subj||'(no subject)',prev:body.slice(0,80),time:'Just now',read:true,body:`To: ${to}\nCc: ${document.getElementById('compose-cc').value.trim()}\n\n${body}`});
+  ['compose-to','compose-cc','compose-subj','compose-body'].forEach(id=>document.getElementById(id).value='');
+  renderEmails();
+  showToast('Email sent and added to mailbox.');
+  alog(CURRENT_USER.username,'email:send',`To: ${to} · "${subj.slice(0,30)}"` , 'ALLOW');
+}
+
+// ════════════════════════════════════════════════════════════════════
+// CALENDAR APP
+// ════════════════════════════════════════════════════════════════════
+function calNav(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}else if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function addEvent(day){
+  if(!S||S.isTerminated||S.isLocked) return;
+  if(!canWrite('calendar event creation')) return;
+  const title=prompt('Event title:', 'New meeting');
+  if(!title) return;
+  const dateVal=prompt('Day of current month:', String(day||new Date().getDate()));
+  const d=Math.max(1, Math.min(31, parseInt(dateVal,10)||new Date().getDate()));
+  const time=prompt('Time:', '10:00 AM') || '10:00 AM';
+  const loc=prompt('Location:', 'Zoom') || 'Zoom';
+  CAL_EVENTS.push({date:d,title,time,loc,col:'#4f8df7'});
+  renderCalendar();
+  recordVelocity();
+  alog(CURRENT_USER.username,'calendar:create',`${title} · day ${d} · ${time}` , 'ALLOW');
+  showToast(`Calendar event created: ${title}`);
+}
+function renderCalendar(){
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const lbl=`${months[calMonth]} ${calYear}`;
+  document.getElementById('cal-title').textContent=lbl;
+  document.getElementById('cal-month-label').textContent=lbl;
+  const today=new Date(),isCurrentMonth=(calMonth===today.getMonth()&&calYear===today.getFullYear());
+  const first=new Date(calYear,calMonth,1);
+  let startDay=first.getDay()-1; if(startDay<0)startDay=6;
+  const days=new Date(calYear,calMonth+1,0).getDate();
+  let html='';
+  for(let i=0;i<startDay;i++) html+=`<div class="cal-day other-month"><div class="cal-day-num">${new Date(calYear,calMonth,0).getDate()-startDay+i+1}</div></div>`;
+  for(let d=1;d<=days;d++){
+    const isToday=isCurrentMonth&&d===today.getDate();
+    const ev=CAL_EVENTS.filter(e=>e.date===d);
+    html+=`<div class="cal-day ${isToday?'today':''}" onclick="calDayClick(${d})">
+      <div class="cal-day-num">${d}</div>
+      ${ev.map(e=>`<div class="cal-event-dot" style="background:${e.col}"></div>`).join('')}
+    </div>`;
+  }
+  document.getElementById('cal-days').innerHTML=html;
+  const evList=CAL_EVENTS.filter(e=>e.date>=today.getDate()).slice(0,4);
+  document.getElementById('cal-events-list').innerHTML=evList.map(e=>`
+    <div class="cal-event-card" style="border-left-color:${e.col}">
+      <div class="cal-event-time">${e.time}</div>
+      <div class="cal-event-title">${e.title}</div>
+      <div class="cal-event-loc">📍 ${e.loc}</div>
+    </div>`).join('');
+}
+function calDayClick(d){
+  recordVelocity();
+  const events=CAL_EVENTS.filter(e=>e.date===d);
+  const list=events.length?events.map(e=>`• ${e.time} — ${e.title} (${e.loc})`).join('\n'):'No events on this day.';
+  if(confirm(`Day ${d}\n\n${list}\n\nAdd new event?`)) addEvent(d);
+}
+
+
+// ════════════════════════════════════════════════════════════════════
+// FILES APP
+// ════════════════════════════════════════════════════════════════════
+function openSecureUpload(){
+  openVirusTotalCheck('files');
+}
+
+function openVirusTotalCheck(context='files'){
+  if(!S||S.isTerminated||S.isLocked) return;
+  if(!canWrite('file transfer')) return;
+  pendingFileContext=context;
+  pendingFileBypass=false;
+  const modal=document.getElementById('vt-modal');
+  const ctx=document.getElementById('vt-context');
+  const st=document.getElementById('vt-status');
+  const labels={
+    files:'Upload to Files workspace',
+    chat:'Attach file to chat message',
+    email:'Attach file to email message'
+  };
+  if(ctx) ctx.textContent=(labels[context]||labels.files)+' — file transfer requires security verification.';
+  if(st) st.textContent='Waiting for file selection.';
+  if(modal) modal.style.display='flex';
+  alog('aiman.sholpan','file:check:open',labels[context]||labels.files,'ALLOW');
+}
+
+function closeVTModal(){
+  const modal=document.getElementById('vt-modal');
+  if(modal) modal.style.display='none';
+}
+
+function vtSelectFile(bypass=false){
+  if(!S||S.isTerminated||S.isLocked) return;
+  if(!canWrite(bypass?'file-transfer bypass attempt':'file selection for upload')) return;
+  pendingFileBypass=!!bypass;
+  const st=document.getElementById('vt-status');
+  if(st) st.textContent=bypass?'Bypass mode selected. Choose a file to attempt upload without scanning.':'Choose a file to send for VirusTotal reputation checking.';
+  const inp=document.getElementById('secure-file-input');
+  if(inp){inp.value='';inp.click();}
+}
+
+function secureUploadFromInput(ev){
+  const file=ev.target.files&&ev.target.files[0];
+  if(!file) return;
+  if(pendingFileBypass) handleFileBypass(file,pendingFileContext);
+  else scanUploadedFile(file,pendingFileContext);
+}
+
+function handleFileBypass(file,context='files'){
+  if(!S||S.isTerminated||S.isLocked) return;
+  if(!canWrite('file-transfer bypass attempt')) return;
+  recordVelocity();
+  S.ulCount++;
+  const st=document.getElementById('vt-status');
+  const target=context==='chat'?'chat attachment':context==='email'?'email attachment':'file upload';
+  addQuarantine({name:file.name,size:formatBytes(file.size),reason:`Security scan bypass attempt during ${target}`,verdict:'blocked'});
+  renderQuarantine();
+  applyRisk('privEscalate',30,`Upload bypass attempt: ${file.name}`,'critical');
+  applyRisk('massUpload',20,`File transfer attempted without VirusTotal check: ${file.name}`,'high');
+  applyRisk('scriptExec',18,'Potential unsafe file introduced without verification','high');
+  alog('aiman.sholpan','file:upload:bypass',`${target}: ${file.name}`,'DENY');
+  recordSequenceAction('vt_bypass',{file:file.name,context,target});
+  if(st) st.textContent=`BLOCKED · ${file.name}\nReason: security scan bypass attempt.\nAction: file quarantined, session risk increased.`;
+  showToast('Upload blocked: security scan bypass detected.');
+  updateRiskUI();
+}
+
+function scanUploadedFile(file,context='files'){
+  if(!S||S.isTerminated||S.isLocked) return;
+  if(!canWrite('file scanning and upload')) return;
+  recordVelocity();
+  const status=document.getElementById('scan-status');
+  const vtStatus=document.getElementById('vt-status');
+  if(status) status.textContent='scanning…';
+  if(vtStatus) vtStatus.textContent=`Scanning ${file.name}...\nProvider: VirusTotal service\nStatus: calculating file reputation.`;
+  alog('aiman.sholpan','file:scan:start',`${context}: ${file.name}`,'ALLOW');
+  setTimeout(()=>{
+    const verdict=calculateFileReputationVerdict(file);
+    if(status) status.textContent=`${verdict.verdict} · ${verdict.detections}/${verdict.engines}`;
+    if(verdict.verdict==='clean'){
+      applyCleanFileTransfer(file,context);
+      if(vtStatus) vtStatus.textContent=`CLEAN · ${file.name}\nDetections: ${verdict.detections}/${verdict.engines}\nAction: file transfer allowed.`;
+      alog('aiman.sholpan','file:upload:scanned',`${context}: ${file.name} · clean`,'ALLOW');
+      showToast(`File scanned and allowed: ${file.name}`);
+      setTimeout(closeVTModal,700);
+    }else{
+      addQuarantine({name:file.name,size:formatBytes(file.size),reason:verdict.reason,verdict:verdict.verdict,detections:verdict.detections,engines:verdict.engines});
+      renderQuarantine();
+      const sev=verdict.verdict==='malicious'?'critical':'high';
+      applyRisk('massUpload',verdict.verdict==='malicious'?22:14,`Blocked ${verdict.verdict} file transfer: ${file.name}` ,sev);
+      applyRisk('scriptExec',verdict.verdict==='malicious'?25:12,`Malware reputation hit: ${verdict.reason}`,sev);
+      alog('aiman.sholpan','file:upload:blocked',`${context}: ${file.name} · ${verdict.verdict}`,'DENY');
+      recordSequenceAction('unsafe_file_blocked',{file:file.name,context,verdict:verdict.verdict});
+      if(vtStatus) vtStatus.textContent=`BLOCKED · ${file.name}\nVerdict: ${verdict.verdict}\nDetections: ${verdict.detections}/${verdict.engines}\nReason: ${verdict.reason}\nAction: file quarantined, transfer denied.`;
+      showToast(`File blocked and quarantined: ${file.name}`);
+    }
+    updateRiskUI();
+  },900);
+}
+
+function applyCleanFileTransfer(file,context='files'){
+  S.ulCount++;
+  const ext=(file.name.split('.').pop()||'file').toLowerCase();
+  if(context==='chat'){
+    addChatMsg('aiman.sholpan','DA',`📎 Shared a scanned file: ${file.name} (${formatBytes(file.size)})`,true);
+    recordSequenceAction('file_attach',{file:file.name,context:'chat'});
+    applyRisk('massUpload', S.ulCount>=3?12:4, `Chat attachment scanned and sent: ${file.name}`, S.ulCount>=3?'medium':'low');
+    return;
+  }
+  if(context==='email'){
+    const compose=document.getElementById('compose-modal-inner');
+    if(!compose || compose.style.display==='none') openCompose();
+    document.getElementById('compose-body').value+=`\n\n[Scanned attachment: ${file.name} · ${formatBytes(file.size)}]`;
+    recordSequenceAction('file_attach',{file:file.name,context:'email'});
+    applyRisk('massUpload', S.ulCount>=3?12:4, `Email attachment scanned and added: ${file.name}`, S.ulCount>=3?'medium':'low');
+    return;
+  }
+  const ps=prettySizeValue(file.size);
+  FILES_DATA.unshift({id:'fu'+Date.now(),n:file.name,t:ext,sz:ps.value,u:ps.unit,s:'low',classification:'internal',ico:fileIcon(ext),dept:'HR'});
+  recordSequenceAction('file_upload',{file:file.name,context:'files',classification:'internal'});
+  renderFiles();
+  if(S.ulCount>=3) applyRisk('massUpload',10,`Multiple scanned uploads: ${S.ulCount} total`,'medium');
+}
+
+function calculateFileReputationVerdict(file){
+  const name=file.name.toLowerCase();
+  const ext=(name.split('.').pop()||'').toLowerCase();
+  const suspiciousName=SUSPICIOUS_NAME_HINTS.some(x=>name.includes(x));
+  if(BLOCKED_UPLOAD_EXT.includes(ext)){
+    return {verdict:'malicious',detections:18,engines:72,reason:`blocked executable/script extension .${ext}`};
+  }
+  if(suspiciousName){
+    return {verdict:'suspicious',detections:6,engines:72,reason:'suspicious filename pattern'};
+  }
+  if(file.size>25*1024*1024){
+    return {verdict:'suspicious',detections:3,engines:72,reason:'unusual upload size for HR workspace'};
+  }
+  return {verdict:'clean',detections:0,engines:72,reason:'no detections'};
+}
+
+function addQuarantine(q){
+  QUARANTINE.unshift({id:'q'+Date.now(),time:new Date().toTimeString().slice(0,8),...q});
+}
+
+function renderQuarantine(){
+  const box=document.getElementById('quarantine-box');
+  const list=document.getElementById('quarantine-list');
+  if(!box||!list) return;
+  box.style.display=QUARANTINE.length?'block':'none';
+  list.innerHTML=QUARANTINE.map(q=>`<div class="qrow">
+    <span>🧪</span><span class="qname">${q.name}</span>
+    <span class="qmeta">${q.verdict}${q.detections!==undefined?` · ${q.detections}/${q.engines}`:''}</span>
+    <span style="color:var(--t3);font-family:var(--mono)">${q.time}</span>
+  </div><div style="font-size:10px;color:var(--t3);padding:0 0 5px 24px">${q.reason}</div>`).join('');
+}
+
+function formatBytes(bytes){
+  if(!bytes&&bytes!==0) return 'unknown';
+  if(bytes<1024) return bytes+' B';
+  if(bytes<1024*1024) return (bytes/1024).toFixed(1)+' KB';
+  return (bytes/1024/1024).toFixed(1)+' MB';
+}
+function prettySizeValue(bytes){
+  if(bytes<1024*1024) return {value:Number(Math.max(1,bytes/1024).toFixed(0)),unit:'KB'};
+  return {value:Number((bytes/1024/1024).toFixed(1)),unit:'MB'};
+}
+function fileIcon(ext){
+  const map={pdf:'📋',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',txt:'📄',csv:'📊',zip:'🗜️',png:'🖼️',jpg:'🖼️',jpeg:'🖼️'};
+  return map[ext]||'📄';
+}
+
+function renderFiles(){
+  renderQuarantine();
+  const locked=calcLevel()<=1;
+  document.getElementById('fmgr').innerHTML=FILES_DATA.map(f=>{
+    const sel=selectedFiles.has(f.id),cross=f.dept!=='HR';
+    const c=normalizeClass(f.classification||f.s);
+    const pol=evaluateObjectAccess(f,'read',{log:false});
+    let bdg=classBadge(c);
+    if(pol.decision==='view-only') bdg+=` <span class="fr-badge" style="background:rgba(251,191,36,.11);color:#fbbf24">view-only</span>`;
+    if(pol.decision==='deny') bdg+=` <span class="fr-badge" style="background:rgba(248,113,113,.12);color:#f87171">denied</span>`;
+    if(cross) bdg+=` <span class="fr-badge" style="background:rgba(96,165,250,.11);color:#60a5fa">${f.dept}</span>`;
+    const disabled=locked||pol.decision==='deny';
+    return `<div class="file-row ${sel?'sel':''} ${locked?'locked':''}" onclick="toggleFileRow('${f.id}')">
+      <input type="checkbox" class="fcb" ${sel?'checked':''} onclick="event.stopPropagation();toggleFileRow('${f.id}')" ${locked?'disabled':''}>
+      <div class="frico">${f.ico}</div>
+      <div class="fr-info">
+        <div class="fr-name">${f.n}</div>
+        <div class="fr-meta">${f.sz}${f.u} · ${f.t.toUpperCase()} · ${bdg}</div>
+      </div>
+      <button class="file-open-btn" onclick="event.stopPropagation();openFile('${f.id}')" ${disabled?'disabled':''}>Open</button>
+    </div>`;
+  }).join('');
+}
+
+function toggleFileRow(id){
+  const f=FILES_DATA.find(x=>x.id===id);
+  if(!f) return;
+  const pol=enforceObjectAccess(f,'read');
+  if(pol.decision==='deny') return;
+  selectedFiles.has(id)?selectedFiles.delete(id):selectedFiles.add(id);
+  const n=selectedFiles.size;
+  document.getElementById('file-sel-info').textContent=n?`${n} file${n>1?'s':''} selected — object policy will be checked before download`:'No files selected';
+  recordVelocity(); renderFiles();
+  if(f.dept!=='HR'){
+    recordSequenceAction('cross_department_file',{file:f.n,department:f.dept,classification:normalizeClass(f.classification||f.s)});
+    applyRisk('crossDept',6,`${f.dept} department file selected by HR employee`,'low');
+  }
+}
+
+function openFile(id){
+  const f=FILES_DATA.find(x=>x.id===id);
+  if(!f) return;
+  const pol=enforceObjectAccess(f,'read');
+  if(pol.decision==='deny') return;
+  recordVelocity();
+  const modal=document.getElementById('file-view-modal');
+  document.getElementById('file-view-icon').textContent=f.ico||'📄';
+  document.getElementById('file-view-title').textContent=f.n;
+  document.getElementById('file-view-desc').innerHTML=`${classBadge(f.classification||f.s)} · ${f.dept} department · ${f.sz}${f.u} · ${f.t.toUpperCase()}`;
+  document.getElementById('file-view-policy').innerHTML=`Decision: <strong>${pol.decision.toUpperCase()}</strong><br>Risk level: <strong>${pol.riskLabel}</strong><br>Policy reason: ${pol.reason}`;
+  document.getElementById('file-view-body').textContent=sampleFilePreview(f,pol.decision);
+  if(modal) modal.style.display='flex';
+  alog('aiman.sholpan','file:open',`${f.n} · ${pol.classificationLabel} · ${pol.decision}` ,pol.decision==='allow'?'ALLOW':'WARN');
+  if(['confidential','restricted','critical'].includes(normalizeClass(f.classification||f.s))) recordSequenceAction('sensitive_open',{file:f.n,classification:normalizeClass(f.classification||f.s),department:f.dept,decision:pol.decision});
+  if(['restricted','critical'].includes(normalizeClass(f.classification||f.s))) recordSequenceAction('critical_open',{file:f.n,classification:normalizeClass(f.classification||f.s),department:f.dept,decision:pol.decision});
+  if(pol.decision==='view-only') applyRisk('enumeration',2,`View-only sensitive object preview: ${f.n}`,'low');
+}
+function closeFileViewer(){
+  const modal=document.getElementById('file-view-modal');
+  if(modal) modal.style.display='none';
+}
+function sampleFilePreview(f,decision){
+  const c=normalizeClass(f.classification||f.s);
+  if(decision==='view-only') return `READ-ONLY PREVIEW
+
+Object: ${f.n}
+Classification: ${classMeta(c).label}
+Department: ${f.dept}
+
+Content is visible for review only. Editing, downloading, forwarding and exporting are disabled by the adaptive access policy.`;
+  if(c==='critical') return `CRITICAL OBJECT PREVIEW
+
+Object: ${f.n}
+Classification: Critical
+
+Only metadata and limited preview are shown in the prototype. Full transfer is controlled by risk and department policy.`;
+  if(c==='restricted') return `RESTRICTED OBJECT
+
+Object: ${f.n}
+Department: ${f.dept}
+
+This object contains restricted operational or personal data. Access is continuously evaluated according to current session risk.`;
+  if(c==='confidential') return `CONFIDENTIAL DOCUMENT
+
+Object: ${f.n}
+
+Preview is available. Transfer actions may be reduced to view-only when session risk increases.`;
+  return `DOCUMENT PREVIEW
+
+Object: ${f.n}
+Department: ${f.dept}
+
+This is a normal internal workspace object.`;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// NOTES APP
+// ════════════════════════════════════════════════════════════════════
+function renderNotes(){
+  document.getElementById('notes-items').innerHTML=NOTES_DATA.map(n=>`
+    <div class="note-item ${activeNote&&activeNote.id===n.id?'active':''}" onclick="openNote('${n.id}')">
+      <div class="note-item-title">${n.title}</div>
+      <div class="note-item-prev">${n.body.slice(0,50)}…</div>
+    </div>`).join('');
+  if(!activeNote&&NOTES_DATA.length) openNote(NOTES_DATA[0].id);
+}
+function openNote(id){
+  activeNote=NOTES_DATA.find(n=>n.id===id);
+  if(!activeNote) return;
+  document.getElementById('note-title-inp').value=activeNote.title;
+  document.getElementById('note-body-inp').value=activeNote.body;
+  noteChange(); renderNotes(); recordVelocity();
+}
+function newNote(){
+  if(!canWrite('creating notes')) return;
+  const n={id:'n'+Date.now(),title:'Untitled note',body:''};
+  NOTES_DATA.unshift(n); activeNote=n; renderNotes();
+  document.getElementById('note-title-inp').focus();
+  recordVelocity();
+}
+function saveNote(){
+  if(!canWrite('saving notes')) return;
+  if(!activeNote) return;
+  activeNote.title=document.getElementById('note-title-inp').value||'Untitled';
+  activeNote.body=document.getElementById('note-body-inp').value;
+  renderNotes(); recordVelocity();
+}
+function noteChange(){
+  const body=document.getElementById('note-body-inp').value;
+  const wc=body.split(/\s+/).filter(Boolean).length;
+  document.getElementById('note-wc').textContent=`${wc} word${wc!==1?'s':''}`;
+  if(wc>400) applyRisk('clipboard',5,'Very large note — possible data accumulation','low');
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ADMIN PANEL
+// ════════════════════════════════════════════════════════════════════
+function showAdminLogin(){
+  document.getElementById('admin-login-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('admin-pw').focus(),80);
+}
+function closeAdminLogin(){
+  document.getElementById('admin-login-modal').style.display='none';
+  document.getElementById('admin-pw').value='';
+  document.getElementById('admin-err').textContent='';
+}
+function verifyAdmin(){
+  const pw=document.getElementById('admin-pw').value;
+  if(pw==='admin'||pw==='admin123'){
+    closeAdminLogin();
+    openAdmin();
+  } else {
+    document.getElementById('admin-err').textContent='Incorrect admin password.';
+    applyRisk('privEscalate',10,'Admin panel access attempt with wrong credentials','medium');
+    alog('aiman.sholpan','admin:failed_login','Wrong admin credentials','DENY');
+  }
+}
+function openAdmin(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('admin-panel').style.display='flex';
+  updateRiskUI(); renderAdminCanvas();
+  alog('ADMIN','admin:panel_access','Security dashboard opened','ALLOW');
+  renderBackendAuditLogs();
+}
+function closeAdmin(){
+  document.getElementById('admin-panel').style.display='none';
+  document.getElementById('app').style.display='flex';
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ADMIN RENDER
+// ════════════════════════════════════════════════════════════════════
+function updateRiskUI(){
+  if(!S) return;
+  syncReadOnlyUI();
+  const sc=total(),lv=calcLevel();
+  // Gauge
+  const ring=document.getElementById('g-ring');
+  if(ring){
+    const circ=106.8;
+    ring.style.strokeDashoffset=circ-(sc/100)*circ;
+    let col='#2dd67b',lbl='Safe';
+    if(sc>=72){col='#f87171';lbl='Critical';}
+    else if(sc>=50){col='#fb923c';lbl='Elevated';}
+    else if(sc>=25){col='#fbbf24';lbl='Caution';}
+    ring.style.stroke=col;
+    const gs=document.getElementById('g-score');
+    const gl=document.getElementById('g-lvl');
+    const ht=document.getElementById('h-threat');
+    if(gs){gs.textContent=sc;gs.style.color=col;}
+    if(gl){gl.textContent=lbl;gl.style.color=col;}
+    if(ht){ht.textContent=lbl;ht.style.color=col;}
+  }
+  // Access badge
+  const cfg=ACCESS_LEVELS[lv];
+  const ab=document.getElementById('abadge');
+  if(ab){ab.style.color=cfg.col;ab.style.borderColor=cfg.bc;ab.style.background=cfg.bg;}
+  const ad=document.getElementById('a-dot');
+  if(ad) ad.style.background=cfg.dot;
+  const at=document.getElementById('a-txt');
+  if(at) at.textContent=cfg.l;
+  // IP
+  const hi=document.getElementById('h-ip');
+  if(hi){const geo=geoFromIP(S.currentIP);hi.textContent=`${S.currentIP} · ${geo.city}`;}
+  const ha=document.getElementById('h-acts');
+  if(ha) ha.textContent=S.totalActions;
+  // Factors
+  const fl=document.getElementById('factor-list');
+  if(fl) fl.innerHTML=Object.entries(RF).map(([,f])=>{
+    const pct=f.s/f.max*100;
+    const c=pct>5?f.c:'rgba(255,255,255,.08)';
+    return `<div class="frow">
+      <div class="fname">${f.l}</div>
+      <div class="fbarw"><div class="fbar" style="width:${pct}%;background:${c}"></div></div>
+      <div class="fval" style="color:${f.s>0?f.c:'#394866'}">${Math.round(f.s)}</div>
+    </div>`;
+  }).join('');
+  // Context
+  const now=new Date(),h=now.getHours(),off=h<8||h>=20;
+  const age=Math.floor((now-S.sessionStart)/1000);
+  const mm=String(Math.floor(age/60)).padStart(2,'0'),ss=String(age%60).padStart(2,'0');
+  const geo=geoFromIP(S.currentIP);
+  const cl=document.getElementById('ctx-list');
+  if(cl) cl.innerHTML=[
+    {k:'IP',v:S.currentIP,c:S.ipChanges>0?'#f87171':''},
+    {k:'Location',v:geo.city,c:geo.trust==='high'?'#2dd67b':'#f87171'},
+    {k:'Network',v:geo.label,c:geo.trust==='high'?'#2dd67b':geo.trust==='medium'?'#fbbf24':'#f87171'},
+    {k:'IP changes',v:S.ipChanges>0?`${S.ipChanges} ⚠`:'0',c:S.ipChanges>0?'#f87171':''},
+    {k:'Time',v:now.toTimeString().slice(0,8),c:off?'#f87171':''},
+    {k:'Hours',v:off?'Off-hours ⚠':'In hours ✓',c:off?'#f87171':'#2dd67b'},
+    {k:'Session',v:`${mm}:${ss}`,c:''},
+    {k:'Downloaded',v:`${S.dlMB.toFixed(1)} MB`,c:S.dlMB>50?'#f87171':S.dlMB>10?'#fbbf24':''},
+    {k:'Failed',v:String(S.failCount),c:S.failCount>3?'#f87171':S.failCount>0?'#fbbf24':''},
+    {k:'Sequence threat',v:S.currentThreat||'None',c:S.currentThreat&&S.currentThreat!=='None'?'#fb923c':'#2dd67b'},
+  ].map(r=>`<div class="crow"><div class="ck">${r.k}</div><div class="cv2" style="color:${r.c||'var(--t1)'}">${r.v}</div></div>`).join('');
+  // Baseline
+  const v=S.timestamps.length;
+  const bl=document.getElementById('baseline-list');
+  if(bl) bl.innerHTML=[
+    {k:'Downloads',k2:'Baseline: 3–5',cur:`${S.dlCount}`,warn:S.dlCount>8},
+    {k:'Data volume',k2:'Baseline: <10 MB',cur:`${S.dlMB.toFixed(0)} MB`,warn:S.dlMB>15},
+    {k:'Hours',k2:'09:00–18:00',cur:now.toTimeString().slice(0,5),warn:off},
+    {k:'Velocity',k2:'1–4 /min',cur:`${v}/min`,warn:v>8},
+    {k:'Dept scope',k2:'HR only',cur:S.failCount>0?'Cross-dept':'HR only',warn:S.failCount>0},
+    {k:'IP stability',k2:'Fixed IP',cur:S.ipChanges>0?`${S.ipChanges} changes`:'Stable',warn:S.ipChanges>0},
+  ].map(r=>`<div class="brow">
+    <div><div style="font-size:10px;color:var(--t2)">${r.k}</div><div style="font-size:9px;color:var(--t3)">${r.k2}</div></div>
+    <div style="font-size:10px;font-family:var(--mono);color:${r.warn?'#f87171':'#2dd67b'}">${r.warn?'⚠':' ✓'} ${r.cur}</div>
+  </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════════════
+// CANVAS GRAPH
+// ════════════════════════════════════════════════════════════════════
+function renderAdminCanvas(){
+  const canvas=document.getElementById('cvcanvas');
+  if(!canvas||!S) return;
+  const wrap=document.getElementById('cv-wrap');
+  canvas.width=wrap.offsetWidth||314;
+  canvas.height=60;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const hist=S.scoreHistory;
+  if(hist.length<2) return;
+  const data=hist.slice(-90),step=W/(Math.max(data.length-1,1));
+  ctx.strokeStyle='rgba(255,255,255,.04)';ctx.lineWidth=.5;
+  [25,50,72].forEach(y=>{const py=H-(y/100)*H;ctx.beginPath();ctx.moveTo(0,py);ctx.lineTo(W,py);ctx.stroke();});
+  const sc=total();
+  const topCol=sc>=72?'rgba(248,113,113,.35)':sc>=50?'rgba(249,115,22,.35)':sc>=25?'rgba(251,191,36,.25)':'rgba(45,214,123,.25)';
+  const lineCol=sc>=72?'#f87171':sc>=50?'#fb923c':sc>=25?'#fbbf24':'#2dd67b';
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,topCol);grad.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.beginPath();
+  data.forEach((v,i)=>{const x=i*step,y=H-(v/100)*H;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.lineTo((data.length-1)*step,H);ctx.lineTo(0,H);ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
+  ctx.beginPath();ctx.strokeStyle=lineCol;ctx.lineWidth=1.5;
+  data.forEach((v,i)=>{const x=i*step,y=H-(v/100)*H;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.stroke();
+  const lx=(data.length-1)*step,ly=H-(data[data.length-1]/100)*H;
+  ctx.beginPath();ctx.arc(lx,ly,3,0,Math.PI*2);ctx.fillStyle=lineCol;ctx.fill();
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ALERTS + AUDIT LOG
+// ════════════════════════════════════════════════════════════════════
+const ICONS2={critical:'🚨',high:'⚠️',medium:'⚡',low:'ℹ️',info:'·'};
+const COLORS2={critical:'#f87171',high:'#fb923c',medium:'#fbbf24',low:'#60a5fa',info:'#394866'};
+
+function pushAlert(sev,msg){
+  const feed=document.getElementById('adm-alerts');
+  if(!feed) return;
+  const d=document.createElement('div');
+  d.className=`alrt ${sev}`;
+  d.innerHTML=`<div style="font-size:13px;margin-top:1px">${ICONS2[sev]||'·'}</div>
+    <div><div class="amsg" style="color:${COLORS2[sev]}">${msg}</div>
+    <div class="ats">${new Date().toTimeString().slice(0,8)}</div></div>`;
+  feed.insertBefore(d,feed.firstChild);
+  while(feed.children.length>50) feed.removeChild(feed.lastChild);
+  if(sev==='critical'){const ld=document.getElementById('ldot');if(ld){ld.style.background='#f87171';setTimeout(()=>ld.style.background='#34d399',2000);}}
+}
+
+function formatDisplayName(username) {
+  if (!username) return 'User';
+  return username.split(/[.@_-]/).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}
+function alog(user,action,detail,result){
+  if (user === 'aiman.sholpan' && typeof CURRENT_USER !== 'undefined' && CURRENT_USER.username) {
+    user = CURRENT_USER.username;
+  }
+  const body=document.getElementById('adm-logbody');
+  if(!body) return;
+  const rc=result==='ALLOW'?'ra':result==='DENY'?'rd':'rw';
+  const row=document.createElement('div');
+  row.className='lrow';
+  row.innerHTML=`<span class="lts">${new Date().toTimeString().slice(0,8)}</span>
+    <span class="luser">${user}</span><span class="lac">${action}</span>
+    <span class="ldet">${detail}</span><span class="lres ${rc}">${result}</span>`;
+  body.insertBefore(row,body.firstChild);
+  while(body.children.length>120) body.removeChild(body.lastChild);
+  logCount++;
+  const lc=document.getElementById('lcnt');if(lc)lc.textContent=`${logCount} events`;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// MODALS
+// ════════════════════════════════════════════════════════════════════
+function showSU(){
+  if(S.isLocked||S.isTerminated) return;
+  S.otp=String(100000+Math.floor(Math.random()*900000));
+  document.getElementById('su-code').textContent=S.otp;
+  document.getElementById('su-err').textContent='';
+  buildOTP('su-inputs','su',6);
+  document.getElementById('m-su').style.display='flex';
+  alog('SYSTEM','auth:mfa_challenge','Step-up auth — behavioral anomaly detected','WARN');
+  let rem=30;
+  if(S.cdTimer) clearInterval(S.cdTimer);
+  S.cdTimer=setInterval(()=>{
+    rem--;
+    const cs=document.getElementById('cds');if(cs)cs.textContent=rem+'s';
+    const cc=document.getElementById('cdcirc');if(cc)cc.style.strokeDashoffset=(rem/30)*50.3;
+    if(rem<=0){clearInterval(S.cdTimer);skipSU();applyRisk('failedAccess',14,'MFA timed out — 30s elapsed','high');}
+  },1000);
+  setTimeout(()=>{const d=document.getElementById('su-d0');if(d)d.focus();},80);
+}
+function verifySU(){
+  if(getOTPVal('su',6)===S.otp){
+    clearInterval(S.cdTimer);
+    document.getElementById('m-su').style.display='none';
+    alog('aiman.sholpan','auth:mfa_ok','Step-up OTP verified','ALLOW');
+    pushAlert('info','Step-up authentication passed — risk score reduced 55%');
+    for(const k in RF) RF[k].s=RF[k].s*0.45;
+    S.currentThreat='None';
+    S.recentSequenceActions=[];
+    S.suShown=false;
+    S.suDismissed=false;
+    enforceReadOnlyState();
+    updateRiskUI();
+  } else {
+    document.getElementById('su-err').textContent='Incorrect code. Please try again.';
+    S.failCount++;
+    applyRisk('failedAccess',14,'Wrong MFA code entered','high');
+  }
+}
+function skipSU(){
+  clearInterval(S.cdTimer);
+  document.getElementById('m-su').style.display='none';
+  S.suDismissed=true;
+  applyRisk('failedAccess',9,'MFA challenge dismissed by user','medium');
+}
+function showLocked(){
+  if(S.isTerminated) return;
+  S.isLocked=true;
+  const lines=Object.entries(RF).filter(([,v])=>v.s>3)
+    .sort((a,b)=>b[1].s-a[1].s)
+    .map(([,v])=>`• ${v.l.padEnd(24)}: ${Math.round(v.s)}/${v.max}`).join('\n');
+  document.getElementById('lock-info').textContent=`Security score: ${total()}/100 (threshold: 72)\n\n${lines||'• Threshold exceeded'}`;
+  document.getElementById('m-lock').style.display='flex';
+  alog('SYSTEM','session:locked',`Risk ${total()}/100 — suspended`,'DENY');
+  pushAlert('critical',`Session locked — score ${total()}/100`);
+  updateRiskUI();
+}
+function doUnlock(){
+  const pw=document.getElementById('unlock-pw').value;
+  if(pw.length>=4){
+    document.getElementById('m-lock').style.display='none';
+    S.isLocked=false; S.lockShown=false; S.suShown=false; S.suDismissed=false;
+    for(const k in RF) RF[k].s=Math.min(RF[k].s,RF[k].max*0.35);
+    alog('aiman.sholpan','auth:unlock','Re-authenticated','ALLOW');
+    pushAlert('medium','Unlocked — monitoring level elevated');
+    document.getElementById('unlock-pw').value='';
+    updateRiskUI();
+  } else {
+    document.getElementById('unlock-pw').style.borderColor='rgba(248,113,113,.4)';
+    setTimeout(()=>document.getElementById('unlock-pw').style.borderColor='',700);
+  }
+}
+function doTerminate(){document.getElementById('m-lock').style.display='none';showTerminated();}
+function showTerminated(){
+  S.isTerminated=true;
+  ['m-su','m-lock'].forEach(id=>document.getElementById(id).style.display='none');
+  const top=Object.entries(RF).filter(([,v])=>v.s>3).sort((a,b)=>b[1].s-a[1].s).slice(0,5)
+    .map(([,v])=>`${v.l}: ${Math.round(v.s)}/${v.max}`).join('\n');
+  const geo=geoFromIP(S.currentIP);
+  document.getElementById('inc-box').innerHTML=`<div style="color:#f87171;font-weight:700;margin-bottom:6px">INCIDENT REPORT</div>
+    ID: INC-${Date.now().toString().slice(-8)}<br>
+    Account: aiman.sholpan — SUSPENDED<br>
+    Score: ${total()}/100<br>
+    IP: ${S.currentIP} (${geo.city})<br>
+    Actions: ${S.totalActions} · Failed: ${S.failCount}<br>
+    Downloaded: ${S.dlMB.toFixed(1)} MB<br><br>
+    <div style="color:#f87171">Top signals:</div><div style="color:#7a8aaa">${top}</div>`;
+  document.getElementById('m-term').style.display='flex';
+  alog('SYSTEM','session:terminated',`Critical risk ${total()}/100`,'DENY');
+  pushAlert('critical','SESSION TERMINATED — Account suspended — SOC notified');
+}
+
+// ════════════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════════════
+function toMB(f){return f.u==='MB'?f.sz:f.u==='KB'?f.sz/1024:f.u==='GB'?f.sz*1024:0;}
+function buildOTP(wrapId,pfx,len){
+  document.getElementById(wrapId).innerHTML=Array.from({length:len},(_,i)=>
+    `<input type="text" maxlength="1" class="otpd" id="${pfx}-d${i}"
+      oninput="otpNext('${pfx}',${i},this)" onkeydown="otpBack('${pfx}',${i},event)">`).join('');
+}
+function getOTPVal(pfx,len){return Array.from({length:len},(_,i)=>{const e=document.getElementById(`${pfx}-d${i}`);return e?e.value:'';}).join('');}
+function otpNext(pfx,i,el){el.value=el.value.replace(/\D/,'');if(el.value&&i<5){const n=document.getElementById(`${pfx}-d${i+1}`);if(n)n.focus();}}
+function otpBack(pfx,i,e){if(e.key==='Backspace'&&!e.target.value&&i>0){const p=document.getElementById(`${pfx}-d${i-1}`);if(p)p.focus();}}
+
+
+function showToast(msg){
+  const old=document.querySelector('.toast'); if(old) old.remove();
+  const d=document.createElement('div'); d.className='toast'; d.textContent=msg;
+  document.body.appendChild(d); setTimeout(()=>d.remove(),2600);
+}
+function downloadText(filename, text, mime='text/plain'){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type:mime}));
+  a.download=filename; document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
+}
+function ensureSearchPop(){
+  let p=document.getElementById('search-pop');
+  if(!p){p=document.createElement('div');p.id='search-pop';p.className='search-pop';document.body.appendChild(p);}
+  return p;
+}
+function globalSearch(q){
+  const pop=ensureSearchPop(); q=(q||'').trim().toLowerCase();
+  if(!q){pop.style.display='none';return;}
+  const res=[];
+  FILES_DATA.forEach(f=>{if((f.n+' '+f.dept+' '+f.s).toLowerCase().includes(q))res.push({type:'File',title:f.n,meta:`${f.dept} · ${classMeta(f.classification||f.s).label}`,go:()=>{navTo('files');openFile(f.id);}});});
+  EMAILS.forEach(e=>{if((e.name+' '+e.from+' '+e.subj+' '+e.body).toLowerCase().includes(q))res.push({type:'Email',title:e.subj,meta:e.name,go:()=>{navTo('email');openEmail(e.id);}});});
+  Object.entries(CHAT_MESSAGES).forEach(([ch,msgs])=>msgs.forEach(m=>{if((m.user+' '+m.text).toLowerCase().includes(q))res.push({type:'Chat',title:m.text.slice(0,70),meta:'# '+ch,go:()=>{navTo('chat');switchChannelByName(ch);}});}));
+  NOTES_DATA.forEach(n=>{if((n.title+' '+n.body).toLowerCase().includes(q))res.push({type:'Note',title:n.title,meta:n.body.slice(0,60),go:()=>{navTo('notes');openNote(n.id);}});});
+  pop.innerHTML=res.length?res.slice(0,12).map((r,i)=>`<div class="search-row" onclick="runSearchResult(${i})"><div class="search-type">${r.type}</div><div>${r.title}</div><div style="font-size:10px;color:var(--t3);margin-top:2px">${r.meta}</div></div>`).join(''):'<div class="search-row">No results</div>';
+  window.__searchResults=res; pop.style.display='block';
+  alog('aiman.sholpan','search',q,'ALLOW');
+}
+function runSearchResult(i){
+  const r=(window.__searchResults||[])[i]; if(!r)return;
+  ensureSearchPop().style.display='none'; document.getElementById('global-search').value='';
+  r.go(); recordVelocity();
+}
+function switchChannelByName(ch){
+  currentChannel=ch;
+  document.querySelectorAll('.ch-item').forEach(i=>i.classList.toggle('active', i.textContent.toLowerCase().includes(ch.replace('-',' ')) || i.textContent.toLowerCase().includes(ch)));
+  document.getElementById('chat-channel-title').textContent=ch.startsWith('#')?ch:'# '+ch;
+  renderChatMessages();
+}
+function showAppsMenu(){
+  const choice=prompt('Open app: chat, email, calendar, files, notes', 'files');
+  if(['chat','email','calendar','files','notes'].includes((choice||'').toLowerCase())) navTo(choice.toLowerCase());
+}
+function showHelpPanel(){
+  alert('DynamoAccess help\n\n• Chat: send messages and attach files.\n• Email: read, reply, forward, delete, compose.\n• Files: open, select, upload, download; classification policy can allow, view-only or deny.\n• Calendar: click a day or New event.\n• Notes: create, save, export.\n• Admin: password admin.');
+  alog('aiman.sholpan','help:open','Help panel opened','ALLOW');
+}
+function showProfileCard(){
+  const roleName = CURRENT_USER.role.charAt(0).toUpperCase() + CURRENT_USER.role.slice(1);
+  if(confirm(`${CURRENT_USER.display}\nRole: ${roleName}\nDepartment: ${CURRENT_USER.department}\nStatus: Online\nSession: monitored by adaptive risk engine\n\nDo you want to log out?`)){
+    logout();
+  }
+}
+function logout(){
+  if(S && S.cdTimer) clearInterval(S.cdTimer);
+  currentUsername = null;
+  authToken = null;
+  S = null;
+  
+  const app = document.getElementById('app');
+  if(app) app.style.display = 'none';
+  const adminPanel = document.getElementById('admin-panel');
+  if(adminPanel) adminPanel.style.display = 'none';
+  
+  const login = document.getElementById('login');
+  if(login) {
+    login.style.display = 'flex';
+    login.style.visibility = 'visible';
+    login.style.zIndex = '400';
+  }
+  const passInput = document.getElementById('l-pass');
+  if(passInput) passInput.value = '';
+  
+  console.log('Logged out successfully');
+}
+
+// ════════════════════════════════════════════════════════════════════
+// RESET
+// ════════════════════════════════════════════════════════════════════
+function resetSession(){
+  if(S&&S.cdTimer) clearInterval(S.cdTimer);
+  for(const k in RF) RF[k].s=0;
+  logCount=0; selectedFiles.clear(); emailForwardCount=0; chatMsgCount=0;
+  S=mkState();
+  ['m-su','m-lock','m-term'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('adm-logbody').innerHTML='';
+  document.getElementById('adm-alerts').innerHTML='';
+  document.getElementById('lcnt').textContent='0 events';
+  document.getElementById('unlock-pw').value='';
+  renderFiles(); syncReadOnlyUI(); updateRiskUI();
+  alog('SYSTEM','session:reset','Session reinitialized','ALLOW');
+  pushAlert('info','Session reset — 15 behavioral signals monitored');
+}
+
+// ════════════════════════════════════════════════════════════════════
+// INIT & TICKS
+// ════════════════════════════════════════════════════════════════════
+function initWorkspace(){
+  renderChatMessages();
+  renderEmails();
+  renderCalendar();
+  renderFiles();
+  renderNotes();
+  syncReadOnlyUI();
+  document.getElementById('chat-badge').style.display='';
+  document.getElementById('email-badge').style.display='';
+  alog('SYSTEM','session:start',`${currentUsername || CURRENT_USER.username} authenticated — monitoring active`,'ALLOW');
+  pushAlert('info','Session started — 15 behavioral risk signals active');
+}
+
+setInterval(decayTick,8000);
+
+setInterval(()=>{
+  if(!S||!S.sessionStart) return;
+  const age=Math.floor((Date.now()-S.sessionStart)/1000);
+  const mm=String(Math.floor(age/60)).padStart(2,'0'),ss2=String(age%60).padStart(2,'0');
+  const el=document.getElementById('h-time');if(el)el.textContent=`${mm}:${ss2}`;
+  S.scoreHistory.push(total());
+  if(S.scoreHistory.length>180) S.scoreHistory.shift();
+  const ap=document.getElementById('admin-panel');
+  if(ap&&ap.style.display!=='none') renderAdminCanvas();
+  updateRiskUI();
+},1000);
+
+window.doLogin = doLogin;
+window.verifyLoginMFA = verifyLoginMFA;
+window.backToLogin = backToLogin;
+window.launchApp = launchApp;
+
+document.addEventListener('DOMContentLoaded', function () {
+  const loginButton = document.getElementById('l-btn');
+
+  if (loginButton) {
+    loginButton.onclick = function (event) {
+      event.preventDefault();
+      console.log('Login button clicked');
+      doLogin();
+    };
+  } else {
+    console.error('Login button not found');
+  }
+});
+
+</script>
+</body>
+</html>
