@@ -644,7 +644,15 @@ body.readonly-mode #chat-input, body.readonly-mode #note-title-inp, body.readonl
     </div>
     <div id="abadge"><div class="adot" id="a-dot"></div><span id="a-txt">Full Access</span></div>
     <div class="vsep"></div>
-    <div class="hstat"><div class="v" id="h-ip">192.168.1.45</div><div class="k">IP / Location</div></div>
+    <div class="hstat" style="align-items:flex-end">
+      <select id="h-ip-select" onchange="simulateNetworkChange(this.value)" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--t1);font-size:11px;font-family:var(--mono);border-radius:4px;padding:2px 4px;outline:none;cursor:pointer;margin-bottom:2px">
+        <option value="192.168.1.45" style="background:#0f172a;color:#f8fafc">192.168.1.45 (Office)</option>
+        <option value="172.16.4.12" style="background:#0f172a;color:#f8fafc">172.16.4.12 (VPN)</option>
+        <option value="45.91.22.103" style="background:#0f172a;color:#f8fafc">45.91.22.103 (Russia ISP)</option>
+        <option value="185.220.101.5" style="background:#0f172a;color:#f8fafc">185.220.101.5 (Tor Exit)</option>
+      </select>
+      <div class="k">IP / Location (Simulate)</div>
+    </div>
     <div class="vsep"></div>
     <div class="hstat"><div class="v" id="h-time">00:00</div><div class="k">Session</div></div>
     <div class="vsep"></div>
@@ -942,6 +950,7 @@ async function renderBackendAuditLogs() {
   if (!logs.length) return;
   const body = document.getElementById("adm-logbody");
   if (!body) return;
+  body.innerHTML = ""; // Clear existing logs to prevent duplication
 
   logs.slice(0, 12).reverse().forEach(log => {
     const res = log.decision === "ALLOW" ? "ra" : log.decision === "DENY" ? "rd" : "rw";
@@ -2369,8 +2378,15 @@ function updateRiskUI(){
   const at=document.getElementById('a-txt');
   if(at) at.textContent=cfg.l;
   // IP
-  const hi=document.getElementById('h-ip');
-  if(hi){const geo=geoFromIP(S.currentIP);hi.textContent=`${S.currentIP} · ${geo.city}`;}
+  const hi=document.getElementById('h-ip-select') || document.getElementById('h-ip');
+  if(hi){
+    if (hi.tagName === 'SELECT') {
+      hi.value = S.currentIP;
+    } else {
+      const geo=geoFromIP(S.currentIP);
+      hi.textContent=`${S.currentIP} · ${geo.city}`;
+    }
+  }
   const ha=document.getElementById('h-acts');
   if(ha) ha.textContent=S.totalActions;
   // Factors
@@ -2416,6 +2432,37 @@ function updateRiskUI(){
     <div><div style="font-size:10px;color:var(--t2)">${r.k}</div><div style="font-size:9px;color:var(--t3)">${r.k2}</div></div>
     <div style="font-size:10px;font-family:var(--mono);color:${r.warn?'#f87171':'#2dd67b'}">${r.warn?'⚠':' ✓'} ${r.cur}</div>
   </div>`).join('');
+}
+
+function simulateNetworkChange(ip) {
+  if (!S || S.isTerminated || S.isLocked) return;
+  const oldIP = S.currentIP;
+  if (oldIP === ip) return;
+  
+  S.currentIP = ip;
+  S.ipChanges++;
+  
+  const oldGeo = geoFromIP(oldIP);
+  const newGeo = geoFromIP(ip);
+  
+  // Apply IP change risk
+  applyRisk('ipChange', 15, `Network IP changed from ${oldIP} to ${ip} (${newGeo.city})`, 'medium');
+  
+  // Apply geoJump if the transition is impossible travel (e.g. from Almaty to Moscow or Frankfurt)
+  if (oldGeo.city !== newGeo.city) {
+    applyRisk('geoJump', 25, `Geographical jump detected: ${oldGeo.city} -> ${newGeo.city} within seconds`, 'high');
+    
+    // Also trigger sequence threat if appropriate
+    recordSequenceAction('geo_jump_anomaly', {from: oldGeo.city, to: newGeo.city});
+    
+    // If they changed to a Tor exit node
+    if (newGeo.trust === 'none') {
+      applyRisk('geoJump', 10, `Connection via high-risk Tor Exit Node: ${ip}`, 'high');
+      applyRisk('failedAccess', 5, `Suspicious proxy/Tor address detected`, 'medium');
+    }
+  }
+  
+  updateRiskUI();
 }
 
 // ════════════════════════════════════════════════════════════════════
