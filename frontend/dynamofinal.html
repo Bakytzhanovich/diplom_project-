@@ -430,8 +430,8 @@ body.readonly-mode #chat-input, body.readonly-mode #note-title-inp, body.readonl
     <div class="hdr-av" onclick="showProfileCard()" title="Aiman Sholpan">DA</div>
   </header>
 
-  <div id="readonly-banner">
-    🔎 <strong>Read-only restricted mode</strong> Elevated session risk detected. Viewing is allowed, but sending, editing, uploading and downloading are paused until step-up MFA is passed.
+  <div id="readonly-banner" style="cursor:pointer" onclick="showSU()">
+    🔎 <strong>Read-only restricted mode</strong> Elevated session risk detected. Click here to verify identity (Step-up MFA) and restore access.
   </div>
 
   <!-- BODY -->
